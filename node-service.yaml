@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: >
+      {"apiVersion":"v1","kind":"Service","metadata":{"annotations":{},"labels":{"app":"nodeservice"},"name":"nodeservice","namespace":"nodeservice"},"spec":{"ports":[{"name":"http","port":3000}],"selector":{"app":"nodeservice"},"type":"NodePort"}}
+  creationTimestamp: '2018-05-03T15:45:21Z'
+  labels:
+    app: nodeservice
+  name: nodeservice
+  namespace: nodeservice
+  resourceVersion: '613652'
+  selfLink: /api/v1/namespaces/nodeservice/services/nodeservice
+  uid: fcf2407e-4ee8-11e8-a0e6-001a4a1602c4
+spec:
+  clusterIP: 172.30.249.27
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      nodePort: 31388
+      port: 3000
+      protocol: TCP
+      targetPort: 3000
+  selector:
+    app: nodeservice
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: nodeservice-v1
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: nodeservice
+        version: v1
+    spec:
+      containers:
+      - name: nodeservice
+        image: docker.io/deewhyweb/node-service:0.0.2
+        readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+        resources:
+          requests:
+            cpu: "100m"
+        imagePullPolicy: IfNotPresent #Always
+        ports:
+        - containerPort: 3000
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: nodeservice
+  annotations:
+    kubernetes.io/ingress.class: "istio"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: nodeservice
+          servicePort: 3000
+---
+apiVersion: v1
+kind: Route
+metadata:
+  annotations:
+    openshift.io/host.generated: 'true'
+  creationTimestamp: '2018-05-03T15:43:15Z'
+  labels:
+    app: nodeservice
+  name: nodeservice
+  namespace: nodeservice
+  resourceVersion: '612320'
+  selfLink: /oapi/v1/namespaces/nodeservice/routes/nodeservice
+  uid: b1d5191a-4ee8-11e8-a0e6-001a4a1602c4
+spec:
+  host: nodeservice-nodeservice.router.default.svc.cluster.local
+  port:
+    targetPort: http
+  to:
+    kind: Service
+    name: nodeservice
+    weight: 100
+  wildcardPolicy: None
+status:
+  ingress:
+    - conditions:
+        - lastTransitionTime: '2018-05-03T15:43:15Z'
+          status: 'True'
+          type: Admitted
+      host: nodeservice-nodeservice.router.default.svc.cluster.local
+      routerName: router
+      wildcardPolicy: None
