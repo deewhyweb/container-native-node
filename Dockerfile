@@ -25,4 +25,4 @@ RUN npm install
 COPY . .
  
 EXPOSE 3000
-CMD ["bash","./checkEnv.sh"]
+CMD ["bash","./startApp.sh"]

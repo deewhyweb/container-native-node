@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const state = { isReady: false };
 let db = require('./lib/db');
-const PORT = process.env["PORT"] ? process.env("PORT") : 3000;
+const PORT = process.env["PORT"] ? process.env("PORT") : 8080;
 const MONGO_CONNECTION_STRING = process.env['MONGO_CONNECTION_STRING'];
 const MONGO_DBNAME = process.env['MONGO_DBNAME'];
 
