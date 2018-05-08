@@ -105,3 +105,5 @@ status:
       host: nodeservice-nodeservice.router.default.svc.cluster.local
       routerName: router
       wildcardPolicy: None
+
+      

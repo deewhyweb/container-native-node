@@ -1,11 +1,20 @@
 const express = require('express');
 const app = express();
-const state = { isShutdown: false };
+const state = { isReady: false };
+let db = require('./lib/db');
+const PORT = process.env["PORT"] ? process.env("PORT") : 3000;
+const MONGO_CONNECTION_STRING = process.env['MONGO_CONNECTION_STRING'];
+const MONGO_DBNAME = process.env['MONGO_DBNAME'];
 
-app.get('/', (req, res) => res.send('Hello World!'))
+if (!MONGO_CONNECTION_STRING || !MONGO_DBNAME ){
+    console.log("Environment variables not set. MONGO_CONNECTION_STRING and MONGO_DBNAME");
+    process.exit(1)
+}
 
-app.get('/health',(req, res) => {
-    if (state.isShutdown) {
+app.use('/products', require("./lib/products"));
+
+app.get('/ready',(req, res) => {
+    if (state.isReady !== true) {
         res.writeHead(500)
         return res.end('not ok')
       } else{
@@ -14,9 +23,31 @@ app.get('/health',(req, res) => {
       }
 });
 
+app.get('/health',(req, res) => {
+    if (state.isReady == true && db.status()) {
+        res.writeHead(200)
+        return res.end('ok');
+    } else {
+        res.writeHead(500)
+        return res.end('not ok');
+    }
+});
+
 process.on('SIGTERM', function onSigterm () {
     console.info('Got SIGTERM. Graceful shutdown start', new Date().toISOString())
-    state.isShutdown = true;
-    // start graceul shutdown here
-  })
-app.listen(3000, () => console.log('Example app listening on port 3000!'))
+    state.isReady = false;
+    db.close(err => {
+        console.log('DB closed, exiting');
+    });
+});
+db.connect(MONGO_CONNECTION_STRING, MONGO_DBNAME, function(err) {
+    if (err) {
+        console.log('Unable to connect to Mongo.')
+        process.exit(1)
+    } else {
+        app.listen(PORT, function() {
+            state.isReady = true;
+            console.log('Listening on port ' + PORT + '...')
+        });
+    }
+});
