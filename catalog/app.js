@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const health = express();
 const state = { isReady: false };
 let db = require('./lib/db');
 const PORT = process.env["PORT"] ? process.env("PORT") : 8080;
@@ -13,7 +14,7 @@ if (!MONGO_CONNECTION_STRING || !MONGO_DBNAME ){
 
 app.use('/products', require("./lib/products"));
 
-app.get('/ready',(req, res) => {
+health.get('/ready',(req, res) => {
     if (state.isReady !== true) {
         res.writeHead(500)
         return res.end('not ok')
@@ -23,7 +24,7 @@ app.get('/ready',(req, res) => {
       }
 });
 
-app.get('/health',(req, res) => {
+health.get('/health',(req, res) => {
     if (state.isReady == true && db.status()) {
         res.writeHead(200)
         return res.end('ok');
@@ -34,7 +35,7 @@ app.get('/health',(req, res) => {
 });
 
 process.on('SIGTERM', function onSigterm () {
-    console.info('Got SIGTERM. Graceful shutdown start', new Date().toISOString())
+    console.info('Got SIGTERM. Graceful shutdown start now', new Date().toISOString())
     state.isReady = false;
     db.close(err => {
         console.log('DB closed, exiting');
@@ -46,8 +47,11 @@ db.connect(MONGO_CONNECTION_STRING, MONGO_DBNAME, function(err) {
         process.exit(1)
     } else {
         app.listen(PORT, function() {
-            state.isReady = true;
             console.log('Listening on port ' + PORT + '...')
+            health.listen(3000, function(){
+                state.isReady = true;
+                console.log('Probes listening on port 3000');
+            })
         });
     }
 });
