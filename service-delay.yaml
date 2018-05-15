@@ -1,0 +1,16 @@
+apiVersion: config.istio.io/v1alpha2
+kind: RouteRule
+metadata:
+  name: reviews-delays
+  namespace: samplenode
+spec:
+  destination:
+    name: reviews
+  httpFault:
+    delay:
+      fixedDelay: 0.500s
+      percent: 100
+  precedence: 2
+  route:
+  - labels:
+      version: v1
