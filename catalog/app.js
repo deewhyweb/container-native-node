@@ -11,7 +11,10 @@ if (!MONGO_CONNECTION_STRING || !MONGO_DBNAME ){
     console.log("Environment variables not set. MONGO_CONNECTION_STRING and MONGO_DBNAME");
     process.exit(1)
 }
-
+app.use(function(req, res, next){
+    console.log(req);
+    next();
+})
 app.use('/products', require("./lib/products"));
 
 health.get('/ready',(req, res) => {
@@ -50,7 +53,7 @@ db.connect(MONGO_CONNECTION_STRING, MONGO_DBNAME, function(err) {
             console.log('Listening on port ' + PORT + '...')
             health.listen(3000, function(){
                 state.isReady = true;
-                console.log('Probes listening on port 3000');
+                console.log('App ready, probes listening on port 3000');
             })
         });
     }

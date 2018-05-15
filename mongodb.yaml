@@ -1,22 +1,40 @@
+apiVersion: v1
+data:
+  seed.sh: >-
+    mongo <<EOF
+
+    use test
+
+    db.products.insert({"product_id":2.0,"id":"B000JZ4HQO","title":"Clickart 950
+    000 - Premier image pack (dvd-rom)","description":"Clickart 950 000 -
+    Premier image pack
+    (dvd-rom)","manufacturer":"Broderbund","price":100.0,"image":"6.jpeg"})
+
+    EOF
+kind: ConfigMap
+metadata:
+  name: mongo-initdb
+---
 apiVersion: apps.openshift.io/v1
 kind: DeploymentConfig
 metadata:
   annotations:
     openshift.io/generated-by: OpenShiftWebConsole
-  creationTimestamp: '2018-05-10T20:07:23Z'
-  generation: 8
+  creationTimestamp: '2018-05-14T17:55:59Z'
+  generation: 2
   labels:
-    app: mongodb
-  name: mongodb
+    app: mongodb-36-rhel7
+  name: mongodb-36-rhel7
   namespace: samplenode
-  resourceVersion: '916789'
-  selfLink: /apis/apps.openshift.io/v1/namespaces/samplenode/deploymentconfigs/mongodb
-  uid: c0afce1b-548d-11e8-928d-001a4a1602c4
+  resourceVersion: '1620163'
+  selfLink: >-
+    /apis/apps.openshift.io/v1/namespaces/samplenode/deploymentconfigs/mongodb-36-rhel7
+  uid: 0ee31bdf-57a0-11e8-928d-001a4a1602c4
 spec:
   replicas: 1
   selector:
-    app: mongodb
-    deploymentconfig: mongodb
+    app: mongodb-36-rhel7
+    deploymentconfig: mongodb-36-rhel7
   strategy:
     activeDeadlineSeconds: 21600
     resources: {}
@@ -33,23 +51,14 @@ spec:
         openshift.io/generated-by: OpenShiftWebConsole
       creationTimestamp: null
       labels:
-        app: mongodb
-        deploymentconfig: mongodb
+        app: mongodb-36-rhel7
+        deploymentconfig: mongodb-36-rhel7
     spec:
       containers:
-        - env:
-            - name: MONGODB_DATABASE
-              value: test
-            - name: MONGODB_USER
-              value: user
-            - name: MONGODB_PASSWORD
-              value: pass
-            - name: MONGODB_ADMIN_PASSWORD
-              value: admin_pass
-          image: >-
-            registry.access.redhat.com/rhscl/mongodb-32-rhel7@sha256:4ed8eb86e5ab93e8c74ce86fbfff4f06e6d9474c28c05ddeefa48464f579abf2
+        - image: >-
+            registry.access.redhat.com/rhscl/mongodb-36-rhel7@sha256:c9e3d5487385842e3c93306776183e15376c0870bca12b9fb27a21bb3cfce4f0
           imagePullPolicy: Always
-          name: mongodb
+          name: mongodb-36-rhel7
           ports:
             - containerPort: 27017
               protocol: TCP
@@ -58,7 +67,9 @@ spec:
           terminationMessagePolicy: File
           volumeMounts:
             - mountPath: /var/lib/mongodb/data
-              name: mongodb-1
+              name: mongodb-36-rhel7-1
+            - name: mongo-initdb
+              mountPath: /docker-entrypoint-initdb.d
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       schedulerName: default-scheduler
@@ -66,42 +77,65 @@ spec:
       terminationGracePeriodSeconds: 30
       volumes:
         - emptyDir: {}
-          name: mongodb-1
+          name: mongodb-36-rhel7-1
+        - name: mongo-initdb
+          configMap:
+            name: mongo-initdb
   test: false
   triggers:
     - type: ConfigChange
     - imageChangeParams:
         automatic: true
         containerNames:
-          - mongodb
+          - mongodb-36-rhel7
         from:
           kind: ImageStreamTag
-          name: 'mongodb:latest'
-          namespace: openshift
+          name: 'mongodb-36-rhel7:latest'
+          namespace: samplenode
         lastTriggeredImage: >-
-          registry.access.redhat.com/rhscl/mongodb-32-rhel7@sha256:4ed8eb86e5ab93e8c74ce86fbfff4f06e6d9474c28c05ddeefa48464f579abf2
+          registry.access.redhat.com/rhscl/mongodb-36-rhel7@sha256:c9e3d5487385842e3c93306776183e15376c0870bca12b9fb27a21bb3cfce4f0
       type: ImageChange
 status:
-  availableReplicas: 1
+  availableReplicas: 0
   conditions:
-    - lastTransitionTime: '2018-05-10T20:16:17Z'
-      lastUpdateTime: '2018-05-10T20:16:17Z'
-      message: Deployment config has minimum availability.
-      status: 'True'
+    - lastTransitionTime: '2018-05-14T17:55:59Z'
+      lastUpdateTime: '2018-05-14T17:55:59Z'
+      message: Deployment config does not have minimum availability.
+      status: 'False'
       type: Available
-    - lastTransitionTime: '2018-05-10T20:16:18Z'
-      lastUpdateTime: '2018-05-10T20:16:19Z'
-      message: replication controller "mongodb-7" successfully rolled out
-      reason: NewReplicationControllerAvailable
-      status: 'True'
+    - lastTransitionTime: '2018-05-14T17:56:01Z'
+      lastUpdateTime: '2018-05-14T17:56:01Z'
+      message: >-
+        replication controller "mongodb-36-rhel7-1" is waiting for pod
+        "mongodb-36-rhel7-1-deploy" to run
+      status: Unknown
       type: Progressing
   details:
     causes:
       - type: ConfigChange
     message: config change
-  latestVersion: 7
-  observedGeneration: 8
-  readyReplicas: 1
+  latestVersion: 1
+  observedGeneration: 2
   replicas: 1
-  unavailableReplicas: 0
+  unavailableReplicas: 1
   updatedReplicas: 1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: mongodb
+  name: mongodb
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: mongo
+      port: 27017
+      protocol: TCP
+      targetPort: 27017
+  selector:
+    deploymentconfig: mongodb
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
