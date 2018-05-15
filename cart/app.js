@@ -12,7 +12,7 @@ if (!MONGO_CONNECTION_STRING || !MONGO_DBNAME ){
     process.exit(1)
 }
 
-app.use('/products', require("./lib/products"));
+app.use('/cart', require("./lib/cart"));
 
 health.get('/ready',(req, res) => {
     if (state.isReady !== true) {

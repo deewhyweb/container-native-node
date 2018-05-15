@@ -27,12 +27,13 @@ spec:
     metadata:
       labels:
         name: catalog
+        app: catalog
     spec:
       containers:
         - name: catalog
           env:
             - name: MONGO_CONNECTION_STRING
-              value: 'mongodb://admin:admin_pass@mongodb'
+              value: 'mongodb://admin:admin_pass@mongodb.samplenode.svc:27017'
             - name: MONGO_DBNAME
               value: test
           image: docker.io/deewhyweb/node-service:latest
@@ -72,21 +73,6 @@ spec:
           name: "node-service:latest"
   strategy: 
     type: "Rolling"
----
-apiVersion: extensions/v1beta1
-kind: Ingress
-metadata:
-  name: nodeservice
-  annotations:
-    kubernetes.io/ingress.class: "istio"
-spec:
-  rules:
-  - http:
-      paths:
-      - path: /
-        backend:
-          serviceName: catalog
-          servicePort: 8080
 ---
 apiVersion: v1
 kind: Route
@@ -136,6 +122,7 @@ spec:
     metadata:
       labels:
         name: gw
+        app: gateway
     spec:
       containers:
         - name: gw
@@ -211,6 +198,158 @@ status:
     - conditions:
       routerName: router
       wildcardPolicy: None
+---
+kind: DeploymentConfig
+apiVersion: v1
+metadata:
+  name: reviews
+spec:
+  template: 
+    metadata:
+      labels:
+        name: reviews
+        app: reviews
+    spec:
+      containers:
+        - name: reviews
+          env:
+            - name: MONGO_CONNECTION_STRING
+              value: 'mongodb://admin:admin_pass@mongodb.samplenode.svc:27017'
+            - name: MONGO_DBNAME
+              value: test
+          image: reviews:latest
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          ports:
+            - containerPort: 8080
+              protocol: "TCP"
+  replicas: 1 
+  selector:
+    name: "reviews"
+  triggers:
+    - type: "ConfigChange" 
+    - type: "ImageChange" 
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "reviews"
+        from:
+          kind: "ImageStreamTag"
+          name: "reviews:latest"
+  strategy: 
+    type: "Rolling"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: reviews
+  name: reviews
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    deploymentconfig: reviews
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {} 
+---
+kind: DeploymentConfig
+apiVersion: v1
+metadata:
+  name: cart
+spec:
+  template: 
+    metadata:
+      labels:
+        name: cart
+        app: cart
+    spec:
+      containers:
+        - name: cart
+          env:
+            - name: MONGO_CONNECTION_STRING
+              value: 'mongodb://admin:admin_pass@mongodb.samplenode.svc:27017'
+            - name: MONGO_DBNAME
+              value: test
+          image: cart:latest
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /ready
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 3000
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 1
+          ports:
+            - containerPort: 8080
+              protocol: "TCP"
+  replicas: 1 
+  selector:
+    name: "cart"
+  triggers:
+    - type: "ConfigChange" 
+    - type: "ImageChange" 
+      imageChangeParams:
+        automatic: true
+        containerNames:
+          - "cart"
+        from:
+          kind: "ImageStreamTag"
+          name: "cart:latest"
+  strategy: 
+    type: "Rolling"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cart
+  name: cart
+spec:
+  externalTrafficPolicy: Cluster
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    deploymentconfig: cart
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}   
 
       
       

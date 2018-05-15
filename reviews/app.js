@@ -11,8 +11,11 @@ if (!MONGO_CONNECTION_STRING || !MONGO_DBNAME ){
     console.log("Environment variables not set. MONGO_CONNECTION_STRING and MONGO_DBNAME");
     process.exit(1)
 }
-
-app.use('/products', require("./lib/products"));
+app.use(function(req, res, next){
+    console.log(req);
+    next();
+})
+app.use('/reviews', require("./lib/reviews"));
 
 health.get('/ready',(req, res) => {
     if (state.isReady !== true) {
