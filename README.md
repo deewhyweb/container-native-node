@@ -16,8 +16,8 @@ The proposed approach is to create a simple node.js based application based on m
 This project will make use of existing NPM modules where possible e.g. nodeshift, and third party tools e.g. Istio for microservice management.  The output from this project will be a comprehensive example of cloud native node.js application development.
 
 ## Prerequisites
-Openshift 3.7 installation (tested with v3.7.42)
-Openshift cli user with admin rights
+* Openshift 3.7 installation (tested with v3.7.42)
+* Openshift cli user with admin rights
 
 ## Proposed architecture
 
