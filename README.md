@@ -24,3 +24,6 @@ docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cl
 
 docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/cart:latest .
 
+
+istioctl create -f ./http-fault.yaml
+istioctl delete -f ./http-fault.yaml

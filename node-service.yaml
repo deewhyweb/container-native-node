@@ -1,4 +1,12 @@
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-configuration
+data:
+  connection_string: 'mongodb://admin:admin_pass@mongodb.samplenode.svc:27017'
+  db_name: test
+---
+apiVersion: v1
 kind: Service
 metadata:
   labels:
@@ -33,9 +41,15 @@ spec:
         - name: catalog
           env:
             - name: MONGO_CONNECTION_STRING
-              value: 'mongodb://admin:admin_pass@mongodb.samplenode.svc:27017'
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configuration
+                  key: connection_string
             - name: MONGO_DBNAME
-              value: test
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configuration
+                  key: db_name
           image: docker.io/deewhyweb/node-service:latest
           readinessProbe:
             failureThreshold: 3
@@ -58,6 +72,13 @@ spec:
           ports:
             - containerPort: 8080
               protocol: "TCP"
+          resources:
+              requests:
+                cpu: 100m 
+                memory: 200Mi 
+              limits:
+                cpu: 200m 
+                memory: 400Mi 
   replicas: 1 
   selector:
     name: "catalog"
@@ -148,6 +169,13 @@ spec:
           ports:
             - containerPort: 8080
               protocol: "TCP"
+          resources:
+              requests:
+                cpu: 100m 
+                memory: 200Mi 
+              limits:
+                cpu: 200m 
+                memory: 400Mi
   replicas: 1 
   selector:
     name: "gw"
@@ -214,9 +242,15 @@ spec:
         - name: reviews
           env:
             - name: MONGO_CONNECTION_STRING
-              value: 'mongodb://admin:admin_pass@mongodb.samplenode.svc:27017'
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configuration
+                  key: connection_string
             - name: MONGO_DBNAME
-              value: test
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configuration
+                  key: db_name
           image: reviews:latest
           readinessProbe:
             failureThreshold: 3
@@ -239,6 +273,13 @@ spec:
           ports:
             - containerPort: 8080
               protocol: "TCP"
+          resources:
+              requests:
+                cpu: 100m 
+                memory: 200Mi 
+              limits:
+                cpu: 200m 
+                memory: 400Mi
   replicas: 1 
   selector:
     name: "reviews"
@@ -290,9 +331,15 @@ spec:
         - name: cart
           env:
             - name: MONGO_CONNECTION_STRING
-              value: 'mongodb://admin:admin_pass@mongodb.samplenode.svc:27017'
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configuration
+                  key: connection_string
             - name: MONGO_DBNAME
-              value: test
+              valueFrom:
+                configMapKeyRef:
+                  name: mongo-configuration
+                  key: db_name
           image: cart:latest
           readinessProbe:
             failureThreshold: 3
@@ -315,6 +362,13 @@ spec:
           ports:
             - containerPort: 8080
               protocol: "TCP"
+          resources:
+              requests:
+                cpu: 100m 
+                memory: 200Mi 
+              limits:
+                cpu: 200m 
+                memory: 400Mi
   replicas: 1 
   selector:
     name: "cart"

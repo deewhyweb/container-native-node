@@ -53,7 +53,7 @@ db.connect(MONGO_CONNECTION_STRING, MONGO_DBNAME, function(err) {
             console.log('Listening on port ' + PORT + '...')
             health.listen(3000, function(){
                 state.isReady = true;
-                console.log('App ready, probes listening on port 3000');
+                console.log('App is ready, probes listening on port 3000');
             })
         });
     }
