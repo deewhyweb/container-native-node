@@ -1,15 +1,15 @@
 # Node.js container native design POC
 Proof of concept of Node.js container native design implementing the following tenets:
 
-* Node.js
-* Docker
-* Mongo.db
-* Istio
-* Jenkins
-* Grafana
-* Jaeger
-* Swagger
-* Operators
+* DevOps automation
+* Single concern principle
+* Service discovery
+* High Observability
+* Lifecycle conformance
+* Runtime confinement
+* Process disposability
+* Image immutability
+
 
 The scope of the project is to produce a working node.js based e-commerce application using the above principles.
 The proposed approach is to create a simple node.js based application based on microservices, incorporating container native design technologies such as high observability, image immutability, and process disposability.
