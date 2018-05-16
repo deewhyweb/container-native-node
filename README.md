@@ -76,27 +76,44 @@ oc adm policy add-scc-to-user privileged -z default -n nodeservice
 oc create -f mongodb.yaml
 ```
 
+## Install mongo sample data
+!!Will change!!
+
+From Mongo pod terminal
+```
+mongo login --username admin --password admin_pass admin
+
+use test
+db.products.insert({"product_id":2.0,"id":"B000JZ4HQO","title":"Clickart 950 000 - Premier image pack (dvd-rom)","description":"Clickart 950 000 - Premier image pack (dvd-rom)","manufacturer":"Broderbund","price":100.0,"image":"6.jpeg"})
+db.reviews.insert({"product_id":2.0,"id":"B000JZ4HQO","title":"Best product I've ever purchased","userId":"Tom Smith"})
+db.cart.insert({"product_id":2.0,"id":"B000JZ4HQO","quantity": "1","userId":"Tom Smith"})
+```
+
+
+# Building and tagging images
+
+```
+docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/node-service:latest .
+docker push docker-registry-default.router.default.svc.cluster.local/samplenode/node-service:latest
+
+docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/gw:latest .
+docker push docker-registry-default.router.default.svc.cluster.local/samplenode/gw:latest 
+
+docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/reviews:latest .
+docker push docker-registry-default.router.default.svc.cluster.local/samplenode/reviews:latest
+
+docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/cart:latest .
+docker push docker-registry-default.router.default.svc.cluster.local/samplenode/cart:latest
+```
+
 ## Install node-service
 ```
 oc apply -f <(istioctl kube-inject -f node-service.yaml)
 ```
 
-# Building and tagging images
-
+# Test
 ```
-docker build --rm -f Dockerfile -t node-service:latest .
-docker tag 0ab4f236f9ca docker-registry-default.router.default.svc.cluster.local/samplenode/node-service:latest
-
-docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/node-service:latest .
-
-
-docker tag 78e0b31fd5e8 docker-registry-default.router.default.svc.cluster.local/samplenode/gw:latest
-
-docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/gw:latest .
-
-docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/reviews:latest .
-
-docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/cart:latest .
+curl http://gwservice-samplenode.router.default.svc.cluster.local/products?[1-20]
 ```
 
 # Introduce http fault
