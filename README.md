@@ -90,25 +90,11 @@ db.cart.insert({"product_id":2.0,"id":"B000JZ4HQO","quantity": "1","userId":"Tom
 ```
 
 
-# Building and tagging images
+# Deploying components 
+From each folder [cart, catalog, gateway, reviews] run 
 
 ```
-docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/node-service:latest .
-docker push docker-registry-default.router.default.svc.cluster.local/samplenode/node-service:latest
-
-docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/gw:latest .
-docker push docker-registry-default.router.default.svc.cluster.local/samplenode/gw:latest 
-
-docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/reviews:latest .
-docker push docker-registry-default.router.default.svc.cluster.local/samplenode/reviews:latest
-
-docker build --rm -f Dockerfile -t docker-registry-default.router.default.svc.cluster.local/samplenode/cart:latest .
-docker push docker-registry-default.router.default.svc.cluster.local/samplenode/cart:latest
-```
-
-## Install node-service
-```
-oc apply -f <(istioctl kube-inject -f node-service.yaml)
+npm run openshift
 ```
 
 # Test
