@@ -1,0 +1,398 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "v1",
+      "kind": "DeploymentConfig",
+      "metadata": {
+        "name": "catalog",
+        "namespace": "samplenode",
+        "annotations": {
+          "nodeshift/git-branch": "master",
+          "nodeshift/git-commit": "85b5d28b05191b626698893473fa136a1fd80df1"
+        },
+        "generation": 24,
+        "labels": {
+          "project": "catalog",
+          "version": "1.0.0",
+          "provider": "nodeshift",
+          "app": "catalog"
+        }
+      },
+      "spec": {
+        "replicas": 1,
+        "revisionHistoryLimit": 2,
+        "selector": {
+          "app": "catalog",
+          "project": "catalog",
+          "provider": "nodeshift",
+          "name": "catalog"
+        },
+        "triggers": [
+          {
+            "type": "ConfigChange"
+          },
+          {
+            "type": "ImageChange",
+            "imageChangeParams": {
+              "automatic": true,
+              "containerNames": [
+                "catalog"
+              ],
+              "from": {
+                "kind": "ImageStreamTag",
+                "namespace": "samplenode",
+                "name": "node-service:latest"
+              },
+              "lastTriggeredImage": "docker-registry.default.svc:5000/samplenode/node-service@sha256:38ebcecd1eeceee63bc66b78f9753c5b6c0747fb220ce33a562605fbee5b2648"
+            }
+          }
+        ],
+        "template": {
+          "metadata": {
+            "annotations": {
+              "pod.alpha.kubernetes.io/init-containers": "[{\"name\":\"istio-init\",\"image\":\"docker.io/istio/proxy_init:0.7.1\",\"args\":[\"-p\",\"15001\",\"-u\",\"1337\"],\"resources\":{},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"imagePullPolicy\":\"IfNotPresent\",\"securityContext\":{\"capabilities\":{\"add\":[\"NET_ADMIN\"]}}},{\"name\":\"enable-core-dump\",\"image\":\"alpine\",\"command\":[\"/bin/sh\"],\"args\":[\"-c\",\"sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t \\u0026\\u0026 ulimit -c unlimited\"],\"resources\":{},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"imagePullPolicy\":\"IfNotPresent\",\"securityContext\":{\"privileged\":true}}]",
+              "pod.beta.kubernetes.io/init-containers": "[{\"name\":\"istio-init\",\"image\":\"docker.io/istio/proxy_init:0.7.1\",\"args\":[\"-p\",\"15001\",\"-u\",\"1337\"],\"resources\":{},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"imagePullPolicy\":\"IfNotPresent\",\"securityContext\":{\"capabilities\":{\"add\":[\"NET_ADMIN\"]}}},{\"name\":\"enable-core-dump\",\"image\":\"alpine\",\"command\":[\"/bin/sh\"],\"args\":[\"-c\",\"sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t \\u0026\\u0026 ulimit -c unlimited\"],\"resources\":{},\"terminationMessagePath\":\"/dev/termination-log\",\"terminationMessagePolicy\":\"File\",\"imagePullPolicy\":\"IfNotPresent\",\"securityContext\":{\"privileged\":true}}]",
+              "sidecar.istio.io/status": "{\"version\":\"43466efda2266e066fb5ad36f2d1658de02fc9411f6db00ccff561300a2a3c78\",\"initContainers\":[\"istio-init\",\"enable-core-dump\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"]}",
+              "nodeshift/git-branch": "master",
+              "nodeshift/git-commit": "85b5d28b05191b626698893473fa136a1fd80df1"
+            },
+            "creationTimestamp": null,
+            "labels": {
+              "project": "catalog",
+              "version": "1.0.0",
+              "provider": "nodeshift",
+              "app": "catalog",
+              "name": "catalog"
+            }
+          },
+          "spec": {
+            "containers": [
+              {
+                "readinessProbe": {
+                  "httpGet": {
+                    "path": "/ready",
+                    "scheme": "HTTP",
+                    "port": 3000
+                  },
+                  "failureThreshold": 3,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "livenessProbe": {
+                  "httpGet": {
+                    "path": "/health",
+                    "scheme": "HTTP",
+                    "port": 3000
+                  },
+                  "initialDelaySeconds": 60,
+                  "periodSeconds": 10,
+                  "failureThreshold": 3,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 1
+                },
+                "image": "docker-registry.default.svc:5000/samplenode/node-service@sha256:38ebcecd1eeceee63bc66b78f9753c5b6c0747fb220ce33a562605fbee5b2648",
+                "name": "catalog",
+                "securityContext": {
+                  "privileged": false
+                },
+                "ports": [
+                  {
+                    "containerPort": 8080,
+                    "name": "http",
+                    "protocol": "TCP"
+                  }
+                ],
+                "env": [
+                  {
+                    "name": "MONGO_CONNECTION_STRING",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "connection_string",
+                        "name": "mongo-configuration"
+                      }
+                    }
+                  },
+                  {
+                    "name": "MONGO_DBNAME",
+                    "valueFrom": {
+                      "configMapKeyRef": {
+                        "key": "db_name",
+                        "name": "mongo-configuration"
+                      }
+                    }
+                  }
+                ],
+                "imagePullPolicy": "Always",
+                "resources": {
+                  "limits": {
+                    "cpu": "200m",
+                    "memory": "400Mi"
+                  },
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "200Mi"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+              },
+              {
+                "args": [
+                  "proxy",
+                  "sidecar",
+                  "--configPath",
+                  "/etc/istio/proxy",
+                  "--binaryPath",
+                  "/usr/local/bin/envoy",
+                  "--serviceCluster",
+                  "catalog",
+                  "--drainDuration",
+                  "45s",
+                  "--parentShutdownDuration",
+                  "1m0s",
+                  "--discoveryAddress",
+                  "istio-pilot.istio-system:8080",
+                  "--discoveryRefreshDelay",
+                  "1s",
+                  "--zipkinAddress",
+                  "zipkin.istio-system:9411",
+                  "--connectTimeout",
+                  "10s",
+                  "--statsdUdpAddress",
+                  "istio-mixer.istio-system:9125",
+                  "--proxyAdminPort",
+                  "15000",
+                  "--controlPlaneAuthPolicy",
+                  "NONE"
+                ],
+                "env": [
+                  {
+                    "name": "POD_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.name"
+                      }
+                    }
+                  },
+                  {
+                    "name": "POD_NAMESPACE",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "metadata.namespace"
+                      }
+                    }
+                  },
+                  {
+                    "name": "INSTANCE_IP",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "apiVersion": "v1",
+                        "fieldPath": "status.podIP"
+                      }
+                    }
+                  }
+                ],
+                "image": "docker.io/istio/proxy:0.7.1",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "istio-proxy",
+                "resources": {},
+                "securityContext": {
+                  "privileged": false,
+                  "readOnlyRootFilesystem": true,
+                  "runAsUser": 1337
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/istio/proxy",
+                    "name": "istio-envoy"
+                  },
+                  {
+                    "mountPath": "/etc/certs/",
+                    "name": "istio-certs",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "initContainers": [
+              {
+                "args": [
+                  "-p",
+                  "15001",
+                  "-u",
+                  "1337"
+                ],
+                "image": "docker.io/istio/proxy_init:0.7.1",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "istio-init",
+                "resources": {},
+                "securityContext": {
+                  "capabilities": {
+                    "add": [
+                      "NET_ADMIN"
+                    ]
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+              },
+              {
+                "args": [
+                  "-c",
+                  "sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t && ulimit -c unlimited"
+                ],
+                "command": [
+                  "/bin/sh"
+                ],
+                "image": "alpine",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "enable-core-dump",
+                "resources": {},
+                "securityContext": {
+                  "privileged": true
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File"
+              }
+            ],
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "emptyDir": {
+                  "medium": "Memory"
+                },
+                "name": "istio-envoy"
+              },
+              {
+                "name": "istio-certs",
+                "secret": {
+                  "defaultMode": 420,
+                  "optional": true,
+                  "secretName": "istio.default"
+                }
+              }
+            ]
+          }
+        },
+        "strategy": {
+          "activeDeadlineSeconds": 21600,
+          "resources": {},
+          "rollingParams": {
+            "intervalSeconds": 1,
+            "maxSurge": "25%",
+            "maxUnavailable": "25%",
+            "timeoutSeconds": 600,
+            "updatePeriodSeconds": 1
+          },
+          "type": "Rolling"
+        },
+        "test": false
+      },
+      "status": {
+        "availableReplicas": 1,
+        "conditions": [
+          {
+            "lastTransitionTime": "2018-05-16T13:22:18Z",
+            "lastUpdateTime": "2018-05-16T13:22:25Z",
+            "message": "replication controller \"catalog-16\" successfully rolled out",
+            "reason": "NewReplicationControllerAvailable",
+            "status": "True",
+            "type": "Progressing"
+          },
+          {
+            "lastTransitionTime": "2018-05-16T20:22:28Z",
+            "lastUpdateTime": "2018-05-16T20:22:28Z",
+            "message": "Deployment config has minimum availability.",
+            "status": "True",
+            "type": "Available"
+          }
+        ],
+        "details": {
+          "causes": [
+            {
+              "imageTrigger": {
+                "from": {
+                  "kind": "DockerImage",
+                  "name": "docker.io/deewhyweb/node-service:latest"
+                }
+              },
+              "type": "ImageChange"
+            }
+          ],
+          "message": "image change"
+        },
+        "latestVersion": 16,
+        "observedGeneration": 24,
+        "readyReplicas": 1,
+        "replicas": 1,
+        "unavailableReplicas": 0,
+        "updatedReplicas": 1
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Route",
+      "spec": {
+        "to": {
+          "kind": "Service",
+          "name": "catalog"
+        },
+        "port": {
+          "targetPort": 8080
+        }
+      },
+      "metadata": {
+        "name": "catalog",
+        "namespace": "samplenode",
+        "labels": {
+          "project": "catalog",
+          "version": "1.0.0",
+          "provider": "nodeshift"
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "spec": {
+        "selector": {
+          "project": "catalog",
+          "provider": "nodeshift"
+        },
+        "ports": [
+          {
+            "protocol": "TCP",
+            "port": 8080,
+            "targetPort": 8080,
+            "name": "http"
+          }
+        ],
+        "type": "ClusterIP"
+      },
+      "metadata": {
+        "name": "catalog",
+        "namespace": "samplenode",
+        "labels": {
+          "project": "catalog",
+          "version": "1.0.0",
+          "provider": "nodeshift"
+        },
+        "annotations": {
+          "nodeshift/git-branch": "master",
+          "nodeshift/git-commit": "85b5d28b05191b626698893473fa136a1fd80df1"
+        }
+      }
+    }
+  ]
+}
