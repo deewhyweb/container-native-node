@@ -16,7 +16,7 @@ The proposed approach is to create a simple node.js based application based on m
 This project will make use of existing NPM modules where possible e.g. nodeshift, and third party tools e.g. Istio for microservice management.  The output from this project will be a comprehensive example of cloud native node.js application development.
 
 ## Prerequisites
-* Openshift 3.7 installation (tested with v3.7.42)
+* Openshift 3.9 installation
 * Openshift cli user with admin rights
 
 ## Proposed architecture
@@ -25,50 +25,20 @@ This project will make use of existing NPM modules where possible e.g. nodeshift
 
 # Installation Instructions
 
-## Istio
-```
-oc adm policy add-scc-to-user anyuid -z istio-ingress-service-account -n istio-system
+## Install Istio
 
-oc adm policy add-scc-to-user anyuid -z istio-grafana-service-account -n istio-system
-
-oc adm policy add-scc-to-user anyuid -z istio-prometheus-service-account -n istio-system
-
-curl -L https://git.io/getLatestIstio | sh -
-
-cd istio-0.7.1/
-
-oc create -f install/kubernetes/istio.yaml
-
-oc project istio-system
-```
-
-## Istio Addons
-```
-oc adm policy add-scc-to-user anyuid -z prometheus -n istio-system
-oc adm policy add-scc-to-user privileged -z prometheus -n istio-system
-oc adm policy add-scc-to-user privileged -z grafana -n istio-system
-oc adm policy add-scc-to-user anyuid -z grafana -n istio-system
-oc create -f install/kubernetes/addons/prometheus.yaml
-oc create -f install/kubernetes/addons/grafana.yaml
-oc create -f install/kubernetes/addons/servicegraph.yaml
-oc expose svc grafana
-oc expose svc servicegraph
-SERVICEGRAPH=$(oc get route servicegraph -o jsonpath='{.spec.host}{"\n"}')/dotviz
-GRAFANA=$(oc get route grafana -o jsonpath='{.spec.host}{"\n"}')
-
-oc apply -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
-oc expose svc jaeger
-```
-
-## Allow Istio container initializer
-```
-setenforce 0
-```
+* [Istio installation](/istio)
 
 ## Create project and allow istio priveledges
 ```
 oc new-project nodeservice
 oc adm policy add-scc-to-user privileged -z default -n nodeservice
+```
+
+## Enable side car injection on per project basis
+
+```
+oc label namespace nodeservice istio-injection=enabled
 ```
 
 ## Install Mongo.db
@@ -92,6 +62,7 @@ db.cart.insert({"product_id":2.0,"id":"B000JZ4HQO","quantity": "1","userId":"Tom
 
 # Deploying components 
 From each folder [cart, catalog, gateway, reviews] run 
+
 
 ```
 npm run openshift

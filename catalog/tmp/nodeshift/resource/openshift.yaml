@@ -8,7 +8,7 @@ items:
       namespace: samplenode
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 85b5d28b05191b626698893473fa136a1fd80df1
+        nodeshift/git-commit: 86e81b97251c4838bb4b1280bb3e9ec0ab5afab6
       generation: 24
       labels:
         project: catalog
@@ -24,7 +24,6 @@ items:
         provider: nodeshift
         name: catalog
       triggers:
-        - type: ConfigChange
         - type: ImageChange
           imageChangeParams:
             automatic: true
@@ -32,10 +31,18 @@ items:
               - catalog
             from:
               kind: ImageStreamTag
+              name: 'catalog:latest'
               namespace: samplenode
-              name: 'node-service:latest'
             lastTriggeredImage: >-
               docker-registry.default.svc:5000/samplenode/node-service@sha256:38ebcecd1eeceee63bc66b78f9753c5b6c0747fb220ce33a562605fbee5b2648
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - catalog
+            from:
+              kind: ImageStreamTag
+              name: 'catalog:latest'
       template:
         metadata:
           annotations:
@@ -52,7 +59,7 @@ items:
             sidecar.istio.io/status: >-
               {"version":"43466efda2266e066fb5ad36f2d1658de02fc9411f6db00ccff561300a2a3c78","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}
             nodeshift/git-branch: master
-            nodeshift/git-commit: 85b5d28b05191b626698893473fa136a1fd80df1
+            nodeshift/git-commit: 86e81b97251c4838bb4b1280bb3e9ec0ab5afab6
           creationTimestamp: null
           labels:
             project: catalog
@@ -64,7 +71,7 @@ items:
           containers:
             - readinessProbe:
                 httpGet:
-                  path: /ready
+                  path: /api/health/readiness
                   scheme: HTTP
                   port: 3000
                 failureThreshold: 3
@@ -73,7 +80,7 @@ items:
                 timeoutSeconds: 1
               livenessProbe:
                 httpGet:
-                  path: /health
+                  path: /api/health/liveness
                   scheme: HTTP
                   port: 3000
                 initialDelaySeconds: 60
@@ -290,4 +297,4 @@ items:
         provider: nodeshift
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 85b5d28b05191b626698893473fa136a1fd80df1
+        nodeshift/git-commit: 86e81b97251c4838bb4b1280bb3e9ec0ab5afab6

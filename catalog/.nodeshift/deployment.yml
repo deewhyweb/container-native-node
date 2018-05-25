@@ -57,7 +57,7 @@ spec:
           livenessProbe:
             failureThreshold: 3
             httpGet:
-              path: /health
+              path: /api/health/liveness
               port: 3000
               scheme: HTTP
             periodSeconds: 10
@@ -70,7 +70,7 @@ spec:
           readinessProbe:
             failureThreshold: 3
             httpGet:
-              path: /ready
+              path: /api/health/readiness
               port: 3000
               scheme: HTTP
             periodSeconds: 10
@@ -191,18 +191,17 @@ spec:
             secretName: istio.default
   test: false
   triggers:
-    - type: ConfigChange
-    - imageChangeParams:
+    - type: ImageChange
+      imageChangeParams:
         automatic: true
         containerNames:
           - catalog
         from:
           kind: ImageStreamTag
-          name: 'node-service:latest'
+          name: 'catalog:latest'
           namespace: samplenode
         lastTriggeredImage: >-
           docker-registry.default.svc:5000/samplenode/node-service@sha256:38ebcecd1eeceee63bc66b78f9753c5b6c0747fb220ce33a562605fbee5b2648
-      type: ImageChange
 status:
   availableReplicas: 1
   conditions:
