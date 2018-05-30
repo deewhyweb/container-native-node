@@ -35,11 +35,11 @@ oc new-project nodeservice
 oc adm policy add-scc-to-user privileged -z default -n nodeservice
 ```
 
-## Enable side car injection on per project basis
+<!-- ## Enable side car injection on per project basis
 
 ```
 oc label namespace nodeservice istio-injection=enabled
-```
+``` -->
 
 ## Install Mongo.db
 ```
