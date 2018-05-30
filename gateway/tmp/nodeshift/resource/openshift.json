@@ -6,14 +6,14 @@
       "apiVersion": "v1",
       "kind": "DeploymentConfig",
       "metadata": {
-        "name": "catalog",
+        "name": "gateway",
         "namespace": "samplenode",
         "creationTimestamp": null,
         "labels": {
-          "project": "catalog",
+          "project": "gateway",
           "version": "1.0.0",
           "provider": "nodeshift",
-          "app": "catalog"
+          "app": "gateway"
         },
         "annotations": {
           "nodeshift/git-branch": "master",
@@ -24,8 +24,8 @@
         "replicas": 1,
         "revisionHistoryLimit": 2,
         "selector": {
-          "app": "catalog",
-          "project": "catalog",
+          "app": "gateway",
+          "project": "gateway",
           "provider": "nodeshift"
         },
         "triggers": [
@@ -37,11 +37,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "catalog"
+                "gateway"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "catalog:latest"
+                "name": "gateway:latest"
               }
             }
           }
@@ -55,11 +55,11 @@
             },
             "creationTimestamp": null,
             "labels": {
-              "project": "catalog",
+              "project": "gateway",
               "version": "1.0.0",
               "provider": "nodeshift",
-              "app": "catalog",
-              "name": "catalog"
+              "app": "gateway",
+              "name": "gateway"
             }
           },
           "spec": {
@@ -88,8 +88,8 @@
                   "successThreshold": 1,
                   "timeoutSeconds": 1
                 },
-                "image": "docker-registry.default.svc:5000/samplenode/catalog:latest",
-                "name": "catalog",
+                "image": "docker-registry.default.svc:5000/samplenode/gateway:latest",
+                "name": "gateway",
                 "securityContext": {
                   "privileged": false
                 },
@@ -98,26 +98,6 @@
                     "containerPort": 8080,
                     "name": "http",
                     "protocol": "TCP"
-                  }
-                ],
-                "env": [
-                  {
-                    "name": "MONGO_CONNECTION_STRING",
-                    "valueFrom": {
-                      "configMapKeyRef": {
-                        "key": "connection_string",
-                        "name": "mongo-configuration"
-                      }
-                    }
-                  },
-                  {
-                    "name": "MONGO_DBNAME",
-                    "valueFrom": {
-                      "configMapKeyRef": {
-                        "key": "db_name",
-                        "name": "mongo-configuration"
-                      }
-                    }
                   }
                 ],
                 "resources": {
@@ -140,7 +120,7 @@
                   "--binaryPath",
                   "/usr/local/bin/envoy",
                   "--serviceCluster",
-                  "catalog",
+                  "gateway",
                   "--drainDuration",
                   "45s",
                   "--parentShutdownDuration",
@@ -270,10 +250,32 @@
     },
     {
       "apiVersion": "v1",
+      "kind": "Route",
+      "spec": {
+        "to": {
+          "kind": "Service",
+          "name": "gateway"
+        },
+        "port": {
+          "targetPort": 8080
+        }
+      },
+      "metadata": {
+        "name": "gateway",
+        "namespace": "samplenode",
+        "labels": {
+          "project": "gateway",
+          "version": "1.0.0",
+          "provider": "nodeshift"
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
       "kind": "Service",
       "spec": {
         "selector": {
-          "project": "catalog",
+          "project": "gateway",
           "provider": "nodeshift"
         },
         "ports": [
@@ -287,10 +289,10 @@
         "type": "ClusterIP"
       },
       "metadata": {
-        "name": "catalog",
+        "name": "gateway",
         "namespace": "samplenode",
         "labels": {
-          "project": "catalog",
+          "project": "gateway",
           "version": "1.0.0",
           "provider": "nodeshift"
         },

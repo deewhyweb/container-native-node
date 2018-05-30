@@ -6,14 +6,14 @@
       "apiVersion": "v1",
       "kind": "DeploymentConfig",
       "metadata": {
-        "name": "catalog",
+        "name": "cart",
         "namespace": "samplenode",
         "creationTimestamp": null,
         "labels": {
-          "project": "catalog",
+          "project": "cart",
           "version": "1.0.0",
           "provider": "nodeshift",
-          "app": "catalog"
+          "app": "cart"
         },
         "annotations": {
           "nodeshift/git-branch": "master",
@@ -24,8 +24,8 @@
         "replicas": 1,
         "revisionHistoryLimit": 2,
         "selector": {
-          "app": "catalog",
-          "project": "catalog",
+          "app": "cart",
+          "project": "cart",
           "provider": "nodeshift"
         },
         "triggers": [
@@ -37,11 +37,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "catalog"
+                "cart"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "catalog:latest"
+                "name": "cart:latest"
               }
             }
           }
@@ -55,11 +55,11 @@
             },
             "creationTimestamp": null,
             "labels": {
-              "project": "catalog",
+              "project": "cart",
               "version": "1.0.0",
               "provider": "nodeshift",
-              "app": "catalog",
-              "name": "catalog"
+              "app": "cart",
+              "name": "cart"
             }
           },
           "spec": {
@@ -88,8 +88,8 @@
                   "successThreshold": 1,
                   "timeoutSeconds": 1
                 },
-                "image": "docker-registry.default.svc:5000/samplenode/catalog:latest",
-                "name": "catalog",
+                "image": "docker-registry.default.svc:5000/samplenode/cart:latest",
+                "name": "cart",
                 "securityContext": {
                   "privileged": false
                 },
@@ -140,7 +140,7 @@
                   "--binaryPath",
                   "/usr/local/bin/envoy",
                   "--serviceCluster",
-                  "catalog",
+                  "cart",
                   "--drainDuration",
                   "45s",
                   "--parentShutdownDuration",
@@ -270,10 +270,32 @@
     },
     {
       "apiVersion": "v1",
+      "kind": "Route",
+      "spec": {
+        "to": {
+          "kind": "Service",
+          "name": "cart"
+        },
+        "port": {
+          "targetPort": 8080
+        }
+      },
+      "metadata": {
+        "name": "cart",
+        "namespace": "samplenode",
+        "labels": {
+          "project": "cart",
+          "version": "1.0.0",
+          "provider": "nodeshift"
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
       "kind": "Service",
       "spec": {
         "selector": {
-          "project": "catalog",
+          "project": "cart",
           "provider": "nodeshift"
         },
         "ports": [
@@ -287,10 +309,10 @@
         "type": "ClusterIP"
       },
       "metadata": {
-        "name": "catalog",
+        "name": "cart",
         "namespace": "samplenode",
         "labels": {
-          "project": "catalog",
+          "project": "cart",
           "version": "1.0.0",
           "provider": "nodeshift"
         },

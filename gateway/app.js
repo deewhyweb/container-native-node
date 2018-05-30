@@ -2,11 +2,39 @@ const express = require('express');
 const app = express();
 const health = express();
 const request = require('request');
+const probe = require('kube-probe');
 const state = { isReady: false };
 const PORT = process.env["PORT"] ? process.env("PORT") : 8080;
 const CATALOG_SERVICE = process.env["CATALOG_SERVICE"] ? process.env["CATALOG_SERVICE"] : "http://catalog:8080";
 const REVIEWS_SERVICE = process.env["REVIEWS_SERVICE"] ? process.env["REVIEWS_SERVICE"] : "http://reviews:8080";
 const CART_SERVICE = process.env["CART_SERVICE"] ? process.env["CART_SERVICE"] : "http://cart:8080";
+
+let readinessCallback = (req, res) => {
+    if (state.isReady !== true) {
+        console.log('readiness not ok');
+        res.writeHead(500)
+        res.end('not ok')
+      } else{
+        res.writeHead(200)
+        res.end('OK')
+      }
+};
+
+let livenessCallback = (req, res) => {
+    if (state.isReady == true && db.status()) {
+        res.writeHead(200)
+        res.end('OK');
+    } else {
+        console.log('liveness not ok');
+        res.writeHead(500)
+        res.end('not ok');
+    }
+};
+var probeOptions = {
+    readinessCallback: readinessCallback,
+    livenessCallback: livenessCallback
+};
+probe(health, probeOptions);
 app.use('/products', (req, res) => {
     console.log('Calling catalog service ' + CATALOG_SERVICE);
     request({
@@ -73,26 +101,6 @@ app.use('/cart', (req, res) => {
       });
 });
 
-health.get('/ready',(req, res) => {
-    if (state.isReady !== true) {
-        res.writeHead(500)
-        return res.end('not ok')
-      } else{
-        res.writeHead(200)
-        return res.end('ok')
-      }
-});
-
-health.get('/health',(req, res) => {
-    //check other services
-    if (state.isReady == true) {
-        res.writeHead(200)
-        return res.end('ok');
-    } else {
-        res.writeHead(500)
-        return res.end('not ok');
-    }
-});
 
 process.on('SIGTERM', function onSigterm () {
     console.info('Got SIGTERM. Graceful shutdown start now', new Date().toISOString())

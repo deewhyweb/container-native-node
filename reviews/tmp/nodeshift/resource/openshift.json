@@ -6,14 +6,14 @@
       "apiVersion": "v1",
       "kind": "DeploymentConfig",
       "metadata": {
-        "name": "catalog",
+        "name": "reviews",
         "namespace": "samplenode",
         "creationTimestamp": null,
         "labels": {
-          "project": "catalog",
+          "project": "reviews",
           "version": "1.0.0",
           "provider": "nodeshift",
-          "app": "catalog"
+          "app": "reviews"
         },
         "annotations": {
           "nodeshift/git-branch": "master",
@@ -24,8 +24,8 @@
         "replicas": 1,
         "revisionHistoryLimit": 2,
         "selector": {
-          "app": "catalog",
-          "project": "catalog",
+          "app": "reviews",
+          "project": "reviews",
           "provider": "nodeshift"
         },
         "triggers": [
@@ -37,11 +37,11 @@
             "imageChangeParams": {
               "automatic": true,
               "containerNames": [
-                "catalog"
+                "reviews"
               ],
               "from": {
                 "kind": "ImageStreamTag",
-                "name": "catalog:latest"
+                "name": "reviews:latest"
               }
             }
           }
@@ -55,11 +55,11 @@
             },
             "creationTimestamp": null,
             "labels": {
-              "project": "catalog",
+              "project": "reviews",
               "version": "1.0.0",
               "provider": "nodeshift",
-              "app": "catalog",
-              "name": "catalog"
+              "app": "reviews",
+              "name": "reviews"
             }
           },
           "spec": {
@@ -88,8 +88,8 @@
                   "successThreshold": 1,
                   "timeoutSeconds": 1
                 },
-                "image": "docker-registry.default.svc:5000/samplenode/catalog:latest",
-                "name": "catalog",
+                "image": "docker-registry.default.svc:5000/samplenode/reviews:latest",
+                "name": "reviews",
                 "securityContext": {
                   "privileged": false
                 },
@@ -140,7 +140,7 @@
                   "--binaryPath",
                   "/usr/local/bin/envoy",
                   "--serviceCluster",
-                  "catalog",
+                  "reviews",
                   "--drainDuration",
                   "45s",
                   "--parentShutdownDuration",
@@ -273,7 +273,7 @@
       "kind": "Service",
       "spec": {
         "selector": {
-          "project": "catalog",
+          "project": "reviews",
           "provider": "nodeshift"
         },
         "ports": [
@@ -287,10 +287,10 @@
         "type": "ClusterIP"
       },
       "metadata": {
-        "name": "catalog",
+        "name": "reviews",
         "namespace": "samplenode",
         "labels": {
-          "project": "catalog",
+          "project": "reviews",
           "version": "1.0.0",
           "provider": "nodeshift"
         },

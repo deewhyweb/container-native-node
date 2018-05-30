@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Deployment
 metadata:
   creationTimestamp: null
-  name: catalog
+  name: gateway
   namespace: samplenode
 spec:
   replicas: 1
@@ -15,22 +15,11 @@ spec:
         sidecar.istio.io/status: '{"version":"43466efda2266e066fb5ad36f2d1658de02fc9411f6db00ccff561300a2a3c78","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}'
       creationTimestamp: null
       labels:
-        app: catalog
-        name: catalog
+        app: gateway
+        name: gateway
     spec:
       containers:
-      - env:
-        - name: MONGO_CONNECTION_STRING
-          valueFrom:
-            configMapKeyRef:
-              key: connection_string
-              name: mongo-configuration
-        - name: MONGO_DBNAME
-          valueFrom:
-            configMapKeyRef:
-              key: db_name
-              name: mongo-configuration
-        image: docker-registry.default.svc:5000/samplenode/catalog:latest
+      - image: docker-registry.default.svc:5000/samplenode/gateway:latest
         livenessProbe:
           failureThreshold: 3
           httpGet:
@@ -40,7 +29,7 @@ spec:
           periodSeconds: 10
           successThreshold: 1
           timeoutSeconds: 1
-        name: catalog
+        name: gateway
         ports:
         - containerPort: 8080
           protocol: TCP
@@ -68,7 +57,7 @@ spec:
         - --binaryPath
         - /usr/local/bin/envoy
         - --serviceCluster
-        - catalog
+        - gateway
         - --drainDuration
         - 45s
         - --parentShutdownDuration

@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const health = express();
 const state = { isReady: false };
+const probe = require('kube-probe');
 let db = require('./lib/db');
 const PORT = process.env["PORT"] ? process.env("PORT") : 8080;
 const MONGO_CONNECTION_STRING = process.env['MONGO_CONNECTION_STRING'];
@@ -14,25 +15,32 @@ if (!MONGO_CONNECTION_STRING || !MONGO_DBNAME ){
 
 app.use('/cart', require("./lib/cart"));
 
-health.get('/ready',(req, res) => {
+let readinessCallback = (req, res) => {
     if (state.isReady !== true) {
+        console.log('readiness not ok');
         res.writeHead(500)
-        return res.end('not ok')
+        res.end('not ok')
       } else{
         res.writeHead(200)
-        return res.end('ok')
+        res.end('OK')
       }
-});
+};
 
-health.get('/health',(req, res) => {
+let livenessCallback = (req, res) => {
     if (state.isReady == true && db.status()) {
         res.writeHead(200)
-        return res.end('ok');
+        res.end('OK');
     } else {
+        console.log('liveness not ok');
         res.writeHead(500)
-        return res.end('not ok');
+        res.end('not ok');
     }
-});
+};
+var probeOptions = {
+    readinessCallback: readinessCallback,
+    livenessCallback: livenessCallback
+};
+probe(health, probeOptions);
 
 process.on('SIGTERM', function onSigterm () {
     console.info('Got SIGTERM. Graceful shutdown start now', new Date().toISOString())
