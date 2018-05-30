@@ -16,7 +16,6 @@ metadata:
   labels:
     app: mongodb-36-rhel7
   name: mongodb-36-rhel7
-  namespace: samplenode
   resourceVersion: '1620163'
   selfLink: >-
     /apis/apps.openshift.io/v1/namespaces/samplenode/deploymentconfigs/mongodb-36-rhel7
@@ -50,7 +49,7 @@ spec:
             - name: MONGODB_ADMIN_PASSWORD
               value: admin_pass
           image: >-
-            registry.access.redhat.com/rhscl/mongodb-36-rhel7@sha256:c9e3d5487385842e3c93306776183e15376c0870bca12b9fb27a21bb3cfce4f0
+            registry.access.redhat.com/rhscl/mongodb-36-rhel7
           imagePullPolicy: Always
           name: mongodb-36-rhel7
           ports:
@@ -80,9 +79,6 @@ spec:
         from:
           kind: ImageStreamTag
           name: 'mongodb-36-rhel7:latest'
-          namespace: samplenode
-        lastTriggeredImage: >-
-          registry.access.redhat.com/rhscl/mongodb-36-rhel7@sha256:c9e3d5487385842e3c93306776183e15376c0870bca12b9fb27a21bb3cfce4f0
       type: ImageChange
 status:
   availableReplicas: 0

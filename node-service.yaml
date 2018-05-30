@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: mongo-configuration
 data:
-  connection_string: 'mongodb://admin:admin_pass@mongodb.samplenode.svc:27017'
+  connection_string: 'mongodb://admin:admin_pass@mongodb.mongodb.svc:27017'
   db_name: test
 ---
 apiVersion: v1

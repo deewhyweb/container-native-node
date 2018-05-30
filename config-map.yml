@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-configuration
+data:
+  connection_string: 'mongodb://admin:admin_pass@mongodb.mongodb.svc:27017'
+  db_name: test

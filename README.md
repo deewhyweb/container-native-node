@@ -59,6 +59,13 @@ db.reviews.insert({"product_id":2.0,"id":"B000JZ4HQO","title":"Best product I've
 db.cart.insert({"product_id":2.0,"id":"B000JZ4HQO","quantity": "1","userId":"Tom Smith"})
 ```
 
+# Injecting the istio sidecar
+From each folder [cart, catalog, gateway, reviews] run 
+```
+mv .nodeshift/deployment.yml .nodeshift/deployment.tmp
+istioctl kube-inject -f .nodeshift/deployment.tmp > .nodeshift/deployment.yml
+rm .nodeshift/deployment.tmp
+```
 
 # Deploying components 
 From each folder [cart, catalog, gateway, reviews] run 

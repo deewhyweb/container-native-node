@@ -62,8 +62,12 @@ oc create -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jae
 oc expose svc jaeger-query
 
 ```
+## Add persmission to the namespace
 
-# Install Istio Automatic sidecar injector
+```
+oc adm policy add-scc-to-user privileged -z default -n namespace
+```
+<!-- # Install Istio Automatic sidecar injector
 
 To install automatic sidecar injection you have to enable the kube certificate server api through some changes to your master config:
 So in master-config.yaml add the following pluginConfig under admissionConfig:
@@ -128,6 +132,6 @@ The Pod should show two containers ready:
 
 Viewing the Pod should show the Istio sidecar container listed:
 
-![pod view ready](/assets/podview.png)
+![pod view ready](/assets/podview.png) -->
 
 
