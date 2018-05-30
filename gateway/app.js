@@ -21,7 +21,7 @@ let readinessCallback = (req, res) => {
 };
 
 let livenessCallback = (req, res) => {
-    if (state.isReady == true && db.status()) {
+    if (state.isReady == true) {
         res.writeHead(200)
         res.end('OK');
     } else {

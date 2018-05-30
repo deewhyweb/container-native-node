@@ -17,7 +17,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "198ba54ac4a624edebfc8aa7c598bf24ca213719"
+          "nodeshift/git-commit": "d9fc8d60f8fd4755b5874dd2a81cae0c8e76e326"
         }
       },
       "spec": {
@@ -51,7 +51,7 @@
             "annotations": {
               "sidecar.istio.io/status": "{\"version\":\"43466efda2266e066fb5ad36f2d1658de02fc9411f6db00ccff561300a2a3c78\",\"initContainers\":[\"istio-init\",\"enable-core-dump\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"]}",
               "nodeshift/git-branch": "master",
-              "nodeshift/git-commit": "198ba54ac4a624edebfc8aa7c598bf24ca213719"
+              "nodeshift/git-commit": "d9fc8d60f8fd4755b5874dd2a81cae0c8e76e326"
             },
             "creationTimestamp": null,
             "labels": {
@@ -298,7 +298,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "198ba54ac4a624edebfc8aa7c598bf24ca213719"
+          "nodeshift/git-commit": "d9fc8d60f8fd4755b5874dd2a81cae0c8e76e326"
         }
       }
     }
