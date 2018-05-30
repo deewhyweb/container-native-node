@@ -42,9 +42,7 @@ oc label namespace nodeservice istio-injection=enabled
 ``` -->
 
 ## Install Mongo.db
-```
-oc create -f mongodb.yaml
-```
+From OCP portal, create a project "mongodb" and within this project deploy MongoDB (Ephemeral)
 
 ## Install mongo sample data
 !!Will change!!
