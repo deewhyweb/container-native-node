@@ -31,14 +31,14 @@ This project will make use of existing NPM modules where possible e.g. kube-prob
 
 ## Create project and allow istio priveledges
 ```
-oc new-project nodeservice
-oc adm policy add-scc-to-user privileged -z default -n nodeservice
+oc new-project samplenode
+oc adm policy add-scc-to-user privileged -z default -n samplenode
 ```
 
 <!-- ## Enable side car injection on per project basis
 
 ```
-oc label namespace nodeservice istio-injection=enabled
+oc label namespace samplenode istio-injection=enabled
 ``` -->
 
 ## Install Mongo.db
