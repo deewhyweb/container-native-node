@@ -93,6 +93,14 @@ http://gateway-samplenode.router.default.svc.cluster.local/products?19 --> <stdo
 "[{\"_id\":\"5b08448645d5281f811b81f1\",\"product_id\":2,\"id\":\"B000JZ4HQO\",\"title\":\"Clickart 950 000 - Premier image pack (dvd-rom)\",\"description\":\"Clickart 950 000 - Premier image pack (dvd-rom)\",\"manufacturer\":\"Broderbund\",\"price\":100,\"image\":\"6.jpeg\",\"reviews\":\"[{\\\"_id\\\":\\\"5b08448645d5281f811b81f2\\\",\\\"product_id\\\":2,\\\"id\\\":\\\"B000JZ4HQO\\\",\\\"title\\\":\\\"Best product I've ever purchased\\\",\\\"userId\\\":\\\"Tom Smith\\\"}]\"}]"
 ```
 
+# Service Discovery
+
+Once the services are all operational, navigate to http://gateway-samplenode.router.default.svc.cluster.local/api-docs to view the swagger api ui.
+
+![Swagger](/assets/swagger.png)
+
+
+
 # Metrics
 Once Jaeger is configured correctly, you should now see trace metrics e.g.
 
