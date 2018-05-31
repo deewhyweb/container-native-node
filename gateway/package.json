@@ -34,7 +34,9 @@
     "mongodb": "^3.0.7",
     "request": "^2.85.0",
     "js-yaml": "^3.10.0",
-    "kube-probe": "^0.3.0"
+    "kube-probe": "^0.3.0",
+    "swagger-jsdoc": "^1.9.7",
+    "swagger-ui-express": "^3.0.9"
   },
   "devDependencies": {
     "coveralls": "^3.0.1",

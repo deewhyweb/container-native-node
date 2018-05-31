@@ -5,9 +5,27 @@ const request = require('request');
 const probe = require('kube-probe');
 const state = { isReady: false };
 const PORT = process.env["PORT"] ? process.env("PORT") : 8080;
-const CATALOG_SERVICE = process.env["CATALOG_SERVICE"] ? process.env["CATALOG_SERVICE"] : "http://catalog:8080";
-const REVIEWS_SERVICE = process.env["REVIEWS_SERVICE"] ? process.env["REVIEWS_SERVICE"] : "http://reviews:8080";
-const CART_SERVICE = process.env["CART_SERVICE"] ? process.env["CART_SERVICE"] : "http://cart:8080";
+const swaggerUi = require("swagger-ui-express");
+const swaggerJSDoc = require("swagger-jsdoc");
+
+var swaggerDefinition = {
+    info: { // API informations (required)
+      title: 'Gateway', // Title (required)
+      version: '1.0.0', // Version (required)
+      description: 'A sample e-commerce gateway API', // Description (optional)
+    },
+    basePath: '/', // Base path (optional)
+};
+  
+// Options for the swagger docs
+var options = {
+// Import swaggerDefinitions
+swaggerDefinition: swaggerDefinition,
+// Path to the API docs
+apis: ['./lib/routes.js'],
+};
+const swaggerSpec = swaggerJSDoc(options);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 let readinessCallback = (req, res) => {
     if (state.isReady !== true) {
@@ -35,71 +53,8 @@ var probeOptions = {
     livenessCallback: livenessCallback
 };
 probe(health, probeOptions);
-app.use('/products', (req, res) => {
-    console.log('Calling catalog service ' + CATALOG_SERVICE);
-    request({
-        headers: {
-          'x-request-id': req.headers['x-request-id'],
-          'x-b3-traceid': req.headers['x-b3-traceid'],
-          'x-b3-spanid': req.headers['x-b3-spanid'],
-          'x-b3-parentspanid': req.headers['x-b3-parentspanid'],
-          'x-b3-sampled': req.headers['x-b3-sampled'],
-          'x-b3-flags': req.headers['x-b3-flags'],
-          'x-ot-span-context': req.headers['x-ot-span-context']
-          
-        },
-        uri: CATALOG_SERVICE + "/products",
-        method: 'GET'
-      }, function (err, response, body) {
-        console.log('Response received from catalog service ' + body);
-        console.log(err);
-        res.json(body);
-      });
-});
 
-app.use('/reviews', (req, res) => {
-    console.log('Calling reviews service ' + REVIEWS_SERVICE);
-    request({
-        headers: {
-          'x-request-id': req.headers['x-request-id'],
-          'x-b3-traceid': req.headers['x-b3-traceid'],
-          'x-b3-spanid': req.headers['x-b3-spanid'],
-          'x-b3-parentspanid': req.headers['x-b3-parentspanid'],
-          'x-b3-sampled': req.headers['x-b3-sampled'],
-          'x-b3-flags': req.headers['x-b3-flags'],
-          'x-ot-span-context': req.headers['x-ot-span-context']
-          
-        },
-        uri: REVIEWS_SERVICE + "/reviews",
-        method: 'GET'
-      }, function (err, response, body) {
-        console.log('Response received from reviews service ' + body);
-        console.log(err);
-        res.json(body);
-      });
-});
-
-app.use('/cart', (req, res) => {
-    console.log('Calling cart service ' + REVIEWS_SERVICE);
-    request({
-        headers: {
-          'x-request-id': req.headers['x-request-id'],
-          'x-b3-traceid': req.headers['x-b3-traceid'],
-          'x-b3-spanid': req.headers['x-b3-spanid'],
-          'x-b3-parentspanid': req.headers['x-b3-parentspanid'],
-          'x-b3-sampled': req.headers['x-b3-sampled'],
-          'x-b3-flags': req.headers['x-b3-flags'],
-          'x-ot-span-context': req.headers['x-ot-span-context']
-          
-        },
-        uri: CART_SERVICE + "/cart",
-        method: 'GET'
-      }, function (err, response, body) {
-        console.log('Response received from cart service ' + body);
-        console.log(err);
-        res.json(body);
-      });
-});
+app.use('/', require("./lib/routes"));
 
 
 process.on('SIGTERM', function onSigterm () {
