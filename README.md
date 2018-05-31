@@ -73,7 +73,7 @@ From each folder [cart, catalog, gateway, reviews] run
 npm run openshift
 ```
 
-Once all components are deployed the list of pods should be:
+Once all components are deployed the list of pods should be: (Note each pod shows two containers ready)
 
 ![Pods](/assets/pods.png)
 
