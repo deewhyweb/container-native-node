@@ -7,6 +7,31 @@ const db = require('./lib/db');
 const PORT = process.env["PORT"] ? process.env("PORT") : 8080;
 const MONGO_CONNECTION_STRING = process.env['MONGO_CONNECTION_STRING'];
 const MONGO_DBNAME = process.env['MONGO_DBNAME'];
+const swaggerUi = require("swagger-ui-express");
+const swaggerJSDoc = require("swagger-jsdoc");
+
+app.use(express.json());
+app.use(express.urlencoded());
+
+var swaggerDefinition = {
+    info: { // API informations (required)
+      title: 'Catalog', // Title (required)
+      version: '1.0.0', // Version (required)
+      description: 'A sample e-commerce catalog API', // Description (optional)
+    },
+    basePath: '/', // Base path (optional)
+};
+  
+// Options for the swagger docs
+var options = {
+// Import swaggerDefinitions
+swaggerDefinition: swaggerDefinition,
+// Path to the API docs
+apis: ['./lib/products.js'],
+};
+const swaggerSpec = swaggerJSDoc(options);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
 let readinessCallback = (req, res) => {
     if (state.isReady !== true) {
         console.log('readiness not ok');

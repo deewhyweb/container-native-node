@@ -36,3 +36,11 @@ exports.close = function(done) {
     });
   }
 }
+
+exports.getProductBy = function(id){
+  var product = {
+    "id" : 123,
+    "name" : "lego marvel"
+  }
+  return product;
+}

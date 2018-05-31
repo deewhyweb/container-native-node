@@ -5,6 +5,19 @@ const REVIEWS_SERVICE = process.env["REVIEWS_SERVICE"] ? process.env["REVIEWS_SE
 
 const db = require('./db');
 
+/**
+   * @swagger
+   * /products:
+   *   get:
+   *     description: Returns products
+   *     tags:
+   *      - Products
+   *     produces:
+   *      - application/json
+   *     responses:
+   *       200:
+   *         description: products
+   */
 router.get('/', function(req, res) {
   console.log('Getting products');
   var collection = db.get().collection('products')
