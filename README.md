@@ -13,7 +13,7 @@ Proof of concept of Node.js container native design implementing the following t
 
 The scope of the project is to produce a working node.js based e-commerce application using the above principles.
 The proposed approach is to create a simple node.js based application based on microservices, incorporating container native design technologies such as high observability, image immutability, and process disposability.
-This project will make use of existing NPM modules where possible e.g. kube-probe, nodeshift, and third party tools e.g. Istio for microservice management.  The output from this project will be a comprehensive example of cloud native node.js application development.
+This project will make use of existing NPM modules where possible e.g. kube-probe, nodeshift, swagger-ui-express, and third party tools e.g. Istio for microservice management.  The output from this project will be a comprehensive example of cloud native node.js application development.
 
 ## Prerequisites
 * Openshift 3.9 installation

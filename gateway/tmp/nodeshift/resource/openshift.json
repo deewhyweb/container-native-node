@@ -7,8 +7,7 @@
       "kind": "DeploymentConfig",
       "metadata": {
         "name": "gateway",
-        "namespace": "samplenode",
-        "creationTimestamp": null,
+        "namespace": "node-store",
         "labels": {
           "project": "gateway",
           "version": "1.0.0",
@@ -17,7 +16,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "67888f223cc47667f375995af334930814e3fa35"
+          "nodeshift/git-commit": "02650b47143908d7f08d339e82678e41fbe8a53b"
         }
       },
       "spec": {
@@ -48,18 +47,17 @@
         ],
         "template": {
           "metadata": {
-            "annotations": {
-              "sidecar.istio.io/status": "{\"version\":\"43466efda2266e066fb5ad36f2d1658de02fc9411f6db00ccff561300a2a3c78\",\"initContainers\":[\"istio-init\",\"enable-core-dump\"],\"containers\":[\"istio-proxy\"],\"volumes\":[\"istio-envoy\",\"istio-certs\"]}",
-              "nodeshift/git-branch": "master",
-              "nodeshift/git-commit": "67888f223cc47667f375995af334930814e3fa35"
-            },
-            "creationTimestamp": null,
             "labels": {
               "project": "gateway",
               "version": "1.0.0",
               "provider": "nodeshift",
               "app": "gateway",
               "name": "gateway"
+            },
+            "annotations": {
+              "sidecar.istio.io/inject": "true",
+              "nodeshift/git-branch": "master",
+              "nodeshift/git-commit": "02650b47143908d7f08d339e82678e41fbe8a53b"
             }
           },
           "spec": {
@@ -72,7 +70,8 @@
                     "port": 3000
                   },
                   "failureThreshold": 3,
-                  "periodSeconds": 10,
+                  "initialDelaySeconds": 10,
+                  "periodSeconds": 5,
                   "successThreshold": 1,
                   "timeoutSeconds": 1
                 },
@@ -83,12 +82,12 @@
                     "port": 3000
                   },
                   "initialDelaySeconds": 60,
-                  "periodSeconds": 10,
-                  "failureThreshold": 3,
+                  "periodSeconds": 3,
+                  "failureThreshold": 2,
                   "successThreshold": 1,
                   "timeoutSeconds": 1
                 },
-                "image": "docker-registry.default.svc:5000/samplenode/gateway:latest",
+                "image": "gateway",
                 "name": "gateway",
                 "securityContext": {
                   "privileged": false
@@ -100,153 +99,40 @@
                     "protocol": "TCP"
                   }
                 ],
-                "resources": {
-                  "limits": {
-                    "cpu": "200m",
-                    "memory": "400Mi"
-                  },
-                  "requests": {
-                    "cpu": "100m",
-                    "memory": "200Mi"
-                  }
-                }
-              },
-              {
-                "args": [
-                  "proxy",
-                  "sidecar",
-                  "--configPath",
-                  "/etc/istio/proxy",
-                  "--binaryPath",
-                  "/usr/local/bin/envoy",
-                  "--serviceCluster",
-                  "gateway",
-                  "--drainDuration",
-                  "45s",
-                  "--parentShutdownDuration",
-                  "1m0s",
-                  "--discoveryAddress",
-                  "istio-pilot.istio-system:8080",
-                  "--discoveryRefreshDelay",
-                  "1s",
-                  "--zipkinAddress",
-                  "zipkin.istio-system:9411",
-                  "--connectTimeout",
-                  "10s",
-                  "--statsdUdpAddress",
-                  "istio-mixer.istio-system:9125",
-                  "--proxyAdminPort",
-                  "15000",
-                  "--controlPlaneAuthPolicy",
-                  "NONE"
-                ],
                 "env": [
                   {
-                    "name": "POD_NAME",
+                    "name": "MONGO_CONNECTION_STRING",
                     "valueFrom": {
-                      "fieldRef": {
-                        "fieldPath": "metadata.name"
+                      "configMapKeyRef": {
+                        "key": "connection_string",
+                        "name": "mongo-configuration"
                       }
                     }
                   },
                   {
-                    "name": "POD_NAMESPACE",
+                    "name": "MONGO_DBNAME",
                     "valueFrom": {
-                      "fieldRef": {
-                        "fieldPath": "metadata.namespace"
-                      }
-                    }
-                  },
-                  {
-                    "name": "INSTANCE_IP",
-                    "valueFrom": {
-                      "fieldRef": {
-                        "fieldPath": "status.podIP"
+                      "configMapKeyRef": {
+                        "key": "db_name",
+                        "name": "mongo-configuration"
                       }
                     }
                   }
                 ],
-                "image": "docker.io/istio/proxy:0.7.1",
-                "imagePullPolicy": "IfNotPresent",
-                "name": "istio-proxy",
-                "resources": {},
-                "securityContext": {
-                  "privileged": false,
-                  "readOnlyRootFilesystem": true,
-                  "runAsUser": 1337
+                "resources": null,
+                "limits": {
+                  "cpu": "200m",
+                  "memory": "400Mi"
                 },
-                "volumeMounts": [
-                  {
-                    "mountPath": "/etc/istio/proxy",
-                    "name": "istio-envoy"
-                  },
-                  {
-                    "mountPath": "/etc/certs/",
-                    "name": "istio-certs",
-                    "readOnly": true
-                  }
-                ]
-              }
-            ],
-            "initContainers": [
-              {
-                "args": [
-                  "-p",
-                  "15001",
-                  "-u",
-                  "1337"
-                ],
-                "image": "docker.io/istio/proxy_init:0.7.1",
-                "imagePullPolicy": "IfNotPresent",
-                "name": "istio-init",
-                "resources": {},
-                "securityContext": {
-                  "capabilities": {
-                    "add": [
-                      "NET_ADMIN"
-                    ]
-                  }
-                }
-              },
-              {
-                "args": [
-                  "-c",
-                  "sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t && ulimit -c unlimited"
-                ],
-                "command": [
-                  "/bin/sh"
-                ],
-                "image": "alpine",
-                "imagePullPolicy": "IfNotPresent",
-                "name": "enable-core-dump",
-                "resources": {},
-                "securityContext": {
-                  "privileged": true
-                }
-              }
-            ],
-            "volumes": [
-              {
-                "emptyDir": {
-                  "medium": "Memory"
-                },
-                "name": "istio-envoy"
-              },
-              {
-                "name": "istio-certs",
-                "secret": {
-                  "optional": true,
-                  "secretName": "istio.default"
+                "requests": {
+                  "cpu": "100m",
+                  "memory": "200Mi"
                 }
               }
             ]
           }
-        },
-        "strategy": {
-          "type": "Rolling"
         }
-      },
-      "status": {}
+      }
     },
     {
       "apiVersion": "v1",
@@ -262,7 +148,7 @@
       },
       "metadata": {
         "name": "gateway",
-        "namespace": "samplenode",
+        "namespace": "node-store",
         "labels": {
           "project": "gateway",
           "version": "1.0.0",
@@ -290,7 +176,7 @@
       },
       "metadata": {
         "name": "gateway",
-        "namespace": "samplenode",
+        "namespace": "node-store",
         "labels": {
           "project": "gateway",
           "version": "1.0.0",
@@ -298,7 +184,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "67888f223cc47667f375995af334930814e3fa35"
+          "nodeshift/git-commit": "02650b47143908d7f08d339e82678e41fbe8a53b"
         }
       }
     }

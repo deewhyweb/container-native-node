@@ -1,140 +1,53 @@
-apiVersion: v1
-kind: Deployment
-metadata:
-  creationTimestamp: null
-  name: gateway
-  namespace: samplenode
 spec:
-  replicas: 1
-  selector: {}
-  strategy:
-    type: Rolling
   template:
     metadata:
-      annotations:
-        sidecar.istio.io/status: '{"version":"43466efda2266e066fb5ad36f2d1658de02fc9411f6db00ccff561300a2a3c78","initContainers":["istio-init","enable-core-dump"],"containers":["istio-proxy"],"volumes":["istio-envoy","istio-certs"]}'
-      creationTimestamp: null
       labels:
         app: gateway
         name: gateway
+      annotations:
+        sidecar.istio.io/inject: "true"
     spec:
       containers:
-      - image: docker-registry.default.svc:5000/samplenode/gateway:latest
-        livenessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /api/health/liveness
-            port: 3000
-            scheme: HTTP
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 1
-        name: gateway
-        ports:
-        - containerPort: 8080
-          protocol: TCP
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /api/health/readiness
-            port: 3000
-            scheme: HTTP
-          periodSeconds: 10
-          successThreshold: 1
-          timeoutSeconds: 1
-        resources:
+        - name: gateway
+          env:
+          - name: MONGO_CONNECTION_STRING
+            valueFrom:
+              configMapKeyRef:
+                key: connection_string
+                name: mongo-configuration
+          - name: MONGO_DBNAME
+            valueFrom:
+              configMapKeyRef:
+                key: db_name
+                name: mongo-configuration
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+            name: http
+          readinessProbe:
+            httpGet:
+              path: /api/health/readiness
+              port: 3000
+              scheme: HTTP
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /api/health/liveness
+              port: 3000
+              scheme: HTTP
+            failureThreshold: 2
+            initialDelaySeconds: 60
+            periodSeconds: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
           limits:
             cpu: 200m
             memory: 400Mi
           requests:
             cpu: 100m
             memory: 200Mi
-      - args:
-        - proxy
-        - sidecar
-        - --configPath
-        - /etc/istio/proxy
-        - --binaryPath
-        - /usr/local/bin/envoy
-        - --serviceCluster
-        - gateway
-        - --drainDuration
-        - 45s
-        - --parentShutdownDuration
-        - 1m0s
-        - --discoveryAddress
-        - istio-pilot.istio-system:8080
-        - --discoveryRefreshDelay
-        - 1s
-        - --zipkinAddress
-        - zipkin.istio-system:9411
-        - --connectTimeout
-        - 10s
-        - --statsdUdpAddress
-        - istio-mixer.istio-system:9125
-        - --proxyAdminPort
-        - "15000"
-        - --controlPlaneAuthPolicy
-        - NONE
-        env:
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
-        - name: POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: INSTANCE_IP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-        image: docker.io/istio/proxy:0.7.1
-        imagePullPolicy: IfNotPresent
-        name: istio-proxy
-        resources: {}
-        securityContext:
-          privileged: false
-          readOnlyRootFilesystem: true
-          runAsUser: 1337
-        volumeMounts:
-        - mountPath: /etc/istio/proxy
-          name: istio-envoy
-        - mountPath: /etc/certs/
-          name: istio-certs
-          readOnly: true
-      initContainers:
-      - args:
-        - -p
-        - "15001"
-        - -u
-        - "1337"
-        image: docker.io/istio/proxy_init:0.7.1
-        imagePullPolicy: IfNotPresent
-        name: istio-init
-        resources: {}
-        securityContext:
-          capabilities:
-            add:
-            - NET_ADMIN
-      - args:
-        - -c
-        - sysctl -w kernel.core_pattern=/etc/istio/proxy/core.%e.%p.%t && ulimit -c
-          unlimited
-        command:
-        - /bin/sh
-        image: alpine
-        imagePullPolicy: IfNotPresent
-        name: enable-core-dump
-        resources: {}
-        securityContext:
-          privileged: true
-      volumes:
-      - emptyDir:
-          medium: Memory
-        name: istio-envoy
-      - name: istio-certs
-        secret:
-          optional: true
-          secretName: istio.default
-status: {}
