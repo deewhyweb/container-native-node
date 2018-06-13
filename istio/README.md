@@ -1,76 +1,11 @@
-# Prerequisites
-Openshift 3.9 (Kubernetes 1.9)
-Openshift cli logged in as cluster admin role
+ # Installation istructions taken from:  
+ https://github.com/openshift-istio/openshift-ansible/blob/istio-3.9-0.7.1/istio/Installation.md
 
-# Install Istio
-```
-oc adm policy add-scc-to-user anyuid -z istio-ingress-service-account -n istio-system
+On the master node:
 
-oc adm policy add-scc-to-user anyuid -z istio-grafana-service-account -n istio-system
+Change to the directory containing the master configuration file (master-config.yaml) e.g. /etc/origin/master
 
-oc adm policy add-scc-to-user anyuid -z istio-prometheus-service-account -n istio-system
-
-curl -L https://git.io/getLatestIstio | sh -
-
-cd istio-0.7.1/
-
-oc create -f install/kubernetes/istio.yaml
-
-```
-
-## Allow Istio container initializer
-At the OS level, run the following command as root user to enter selinux permissive mode
-```
-setenforce 0
-```
-
-## Verify installation
-
-```
-oc project istio-system
-
-oc get pods
-istio-ca-2267585963-2hmfq        1/1       Running   0          1m
-istio-ingress-3271581819-xcgmb   1/1       Running   0          2m
-istio-mixer-3525126435-wnv2c     3/3       Running   0          13m
-istio-pilot-1128596656-tzlxw     2/2       Running   0          2m
-
-
-oc get svc
-NAME            CLUSTER-IP       EXTERNAL-IP                     PORT(S)                                                             AGE
-istio-ingress   172.30.90.231    172.29.252.237,172.29.252.237   80:31776/TCP,443:31241/TCP                                          5m
-istio-mixer     172.30.158.157   <none>                          9091/TCP,15004/TCP,9093/TCP,9094/TCP,9102/TCP,9125/UDP,42422/TCP    17m
-istio-pilot     172.30.107.192   <none>                          15003/TCP,15005/TCP,15007/TCP,15010/TCP,8080/TCP,9093/TCP,443/TCP   6m
-```
-
-# Install Istio Addons
-```
-oc adm policy add-scc-to-user anyuid -z prometheus -n istio-system
-oc adm policy add-scc-to-user privileged -z prometheus -n istio-system
-oc adm policy add-scc-to-user privileged -z grafana -n istio-system
-oc adm policy add-scc-to-user anyuid -z grafana -n istio-system
-oc create -f install/kubernetes/addons/prometheus.yaml
-oc create -f install/kubernetes/addons/grafana.yaml
-oc create -f install/kubernetes/addons/zipkin.yaml -->
-oc expose svc grafana
-```
-
-## Install jaeger
-```
-oc create -n istio-system -f https://raw.githubusercontent.com/jaegertracing/jaeger-kubernetes/master/all-in-one/jaeger-all-in-one-template.yml
-
-oc expose svc jaeger-query
-
-```
-## Add persmission to the namespace
-
-```
-oc adm policy add-scc-to-user privileged -z default -n namespace
-```
-<!-- # Install Istio Automatic sidecar injector
-
-To install automatic sidecar injection you have to enable the kube certificate server api through some changes to your master config:
-So in master-config.yaml add the following pluginConfig under admissionConfig:
+Create a file named master-config.patch with the following contents
 
 ```
 admissionConfig:
@@ -80,58 +15,65 @@ admissionConfig:
         apiVersion: v1
         disable: false
         kind: DefaultAdmissionConfig
-
-```
-and under kubernetesMasterConfig add the following controllerArguments:
-
-```
 kubernetesMasterConfig:
   controllerArguments:
-    cluster-signing-cert-file: [ ca.crt ]
-    cluster-signing-key-file: [ ca.key ]
+    cluster-signing-cert-file:
+    - ca.crt
+    cluster-signing-key-file:
+    - ca.key
 ```
 
-Once these changes are made, restart OCP with the command:
+Run the following commands to patch the master-config.yml file and restart the atomic openshift master services:
 
 ```
-systemctl restart atomic-openshift-master-*
+cp -p master-config.yaml master-config.yaml.prepatch
+oc ex config patch master-config.yaml.prepatch -p "$(cat ./master-config.patch)" > master-config.yaml
+systemctl restart atomic-openshift-master*
 ```
 
-## Install sidecar injector
+In order to run the Elasticsearch application it is necessary to make a change to the kernel configuration on each node, this change will be handled through the sysctl service.
+Create a file named /etc/sysctl.d/99-elasticsearch.conf with the following contents
 ```
-oc adm policy add-scc-to-user anyuid -z istio-sidecar-injector-service-account -n istio-system
+vm.max_map_count = 262144
+```
 
-./install/kubernetes/webhook-create-signed-cert.sh --service istio-sidecar-injector --namespace istio-system --secret sidecar-injector-cer
+Execute the following command
+```
+sysctl vm.max_map_count=262144
+```
 
-oc create -f install/kubernetes/istio-sidecar-injector-configmap-release.yaml
+On a machine with an oc user logged in with cluster-admin rights, clone the openshift-istio repo locally
+```
+git clone https://github.com/openshift-istio/openshift-ansible.git
+cd openshift-ansible/istio
+```
 
-cat install/kubernetes/istio-sidecar-injector.yaml | \
-     ./install/kubernetes/webhook-patch-ca-bundle.sh > \
-     install/kubernetes/istio-sidecar-injector-with-ca-bundle.yaml
+Run the istio installer template
+oc new-app istio_installer_template.yaml --param=OPENSHIFT_ISTIO_MASTER_PUBLIC_URL=master public url
 
-oc create -f install/kubernetes/istio-sidecar-injector-with-ca-bundle.yaml
+Verify the installation
+```
+oc get pods -n istio-system -w
+```
+
+You should see a list similar to:
 
 ```
-## Verify sidecar injector is running
-```
-oc get pods --namespace=istio-system | grep sidecar
-istio-sidecar-injector-5b8c78fd6-qsqqc   1/1       Running   0          1h
+NAME                                      READY     STATUS      RESTARTS   AGE
+elasticsearch-0                           1/1       Running     0          18s
+elasticsearch-1                           1/1       Running     0          3s
+grafana-6f4fd4986f-tzkzl                  1/1       Running     0          25s
+istio-ca-ddb878d84-mknp6                  1/1       Running     0          43s
+istio-ingress-76b5496c58-4v9s8            1/1       Running     0          43s
+istio-mixer-56f49dc667-4nl2v              3/3       Running     0          44s
+istio-mixer-validator-65c7fccc64-rj8dd    1/1       Running     0          43s
+istio-pilot-76dd785958-tb2fn              2/2       Running     0          44s
+istio-sidecar-injector-599d8c454c-7pv7b   1/1       Running     0          35s
+jaeger-agent-rfkkk                        1/1       Running     0          1s
+jaeger-collector-b86c6bf8d-p5g7p          1/1       Running     0          2s
+jaeger-query-6c8c85454-kzz82              1/1       Running     0          2s
+openshift-ansible-istio-job-zg6nv         0/1       Completed   0          1m
+prometheus-cf8456855-n4qd9                1/1       Running     0          24s
 
 ```
-## Enable side car injection on per project basis
-
-```
-oc label namespace <<project name>> istio-injection=enabled
-```
-Any deployments to this namespace will now automatically have the istio side car injected.
-
-To verfiy this, take a look in the Openshift console at your application.  In this case it's the default Node.js sample app.
-The Pod should show two containers ready:
-
-![containers ready](/assets/containers.png)
-
-Viewing the Pod should show the Istio sidecar container listed:
-
-![pod view ready](/assets/podview.png) -->
-
 

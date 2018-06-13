@@ -29,10 +29,9 @@ This project will make use of existing NPM modules where possible e.g. kube-prob
 
 * [Istio installation](/istio)
 
-## Create project and allow istio priveledges
+## Create project
 ```
 oc new-project samplenode
-oc adm policy add-scc-to-user privileged -z default -n samplenode
 ```
 
 <!-- ## Enable side car injection on per project basis
@@ -55,14 +54,6 @@ use test
 db.products.insert({"product_id":2.0,"id":"B000JZ4HQO","title":"Clickart 950 000 - Premier image pack (dvd-rom)","description":"Clickart 950 000 - Premier image pack (dvd-rom)","manufacturer":"Broderbund","price":100.0,"image":"6.jpeg"})
 db.reviews.insert({"product_id":2.0,"id":"B000JZ4HQO","title":"Best product I've ever purchased","userId":"Tom Smith"})
 db.cart.insert({"product_id":2.0,"id":"B000JZ4HQO","quantity": "1","userId":"Tom Smith"})
-```
-
-# Injecting the istio sidecar
-From each folder [cart, catalog, gateway, reviews] run 
-```
-mv .nodeshift/deployment.yml .nodeshift/deployment.tmp
-istioctl kube-inject -f .nodeshift/deployment.tmp > .nodeshift/deployment.yml
-rm .nodeshift/deployment.tmp
 ```
 
 # Deploying components 
