@@ -7,7 +7,7 @@
       "kind": "DeploymentConfig",
       "metadata": {
         "name": "catalog",
-        "namespace": "node-store",
+        "namespace": "samplenode",
         "labels": {
           "project": "catalog",
           "version": "1.0.0",
@@ -16,7 +16,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "02650b47143908d7f08d339e82678e41fbe8a53b"
+          "nodeshift/git-commit": "19a044b414e89047ff6404fa3b2eaf1aa7cbe454"
         }
       },
       "spec": {
@@ -57,7 +57,7 @@
             "annotations": {
               "sidecar.istio.io/inject": "true",
               "nodeshift/git-branch": "master",
-              "nodeshift/git-commit": "02650b47143908d7f08d339e82678e41fbe8a53b"
+              "nodeshift/git-commit": "19a044b414e89047ff6404fa3b2eaf1aa7cbe454"
             }
           },
           "spec": {
@@ -154,7 +154,7 @@
       },
       "metadata": {
         "name": "catalog",
-        "namespace": "node-store",
+        "namespace": "samplenode",
         "labels": {
           "project": "catalog",
           "version": "1.0.0",
@@ -162,7 +162,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "02650b47143908d7f08d339e82678e41fbe8a53b"
+          "nodeshift/git-commit": "19a044b414e89047ff6404fa3b2eaf1aa7cbe454"
         }
       }
     }
