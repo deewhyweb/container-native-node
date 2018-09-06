@@ -13,7 +13,7 @@ items:
         app: catalog
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 19a044b414e89047ff6404fa3b2eaf1aa7cbe454
+        nodeshift/git-commit: 1184ef60b458218af02aa2609902dc32b91db29a
     spec:
       replicas: 1
       revisionHistoryLimit: 2
@@ -42,7 +42,7 @@ items:
           annotations:
             sidecar.istio.io/inject: 'true'
             nodeshift/git-branch: master
-            nodeshift/git-commit: 19a044b414e89047ff6404fa3b2eaf1aa7cbe454
+            nodeshift/git-commit: 1184ef60b458218af02aa2609902dc32b91db29a
         spec:
           containers:
             - readinessProbe:
@@ -112,4 +112,4 @@ items:
         provider: nodeshift
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 19a044b414e89047ff6404fa3b2eaf1aa7cbe454
+        nodeshift/git-commit: 1184ef60b458218af02aa2609902dc32b91db29a
