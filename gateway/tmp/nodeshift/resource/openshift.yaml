@@ -5,7 +5,7 @@ items:
     kind: DeploymentConfig
     metadata:
       name: gateway
-      namespace: node-store
+      namespace: samplenode
       labels:
         project: gateway
         version: 1.0.0
@@ -13,7 +13,7 @@ items:
         app: gateway
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 02650b47143908d7f08d339e82678e41fbe8a53b
+        nodeshift/git-commit: 19a044b414e89047ff6404fa3b2eaf1aa7cbe454
     spec:
       replicas: 1
       revisionHistoryLimit: 2
@@ -42,7 +42,7 @@ items:
           annotations:
             sidecar.istio.io/inject: 'true'
             nodeshift/git-branch: master
-            nodeshift/git-commit: 02650b47143908d7f08d339e82678e41fbe8a53b
+            nodeshift/git-commit: 19a044b414e89047ff6404fa3b2eaf1aa7cbe454
         spec:
           containers:
             - readinessProbe:
@@ -101,7 +101,7 @@ items:
         targetPort: 8080
     metadata:
       name: gateway
-      namespace: node-store
+      namespace: samplenode
       labels:
         project: gateway
         version: 1.0.0
@@ -120,11 +120,11 @@ items:
       type: ClusterIP
     metadata:
       name: gateway
-      namespace: node-store
+      namespace: samplenode
       labels:
         project: gateway
         version: 1.0.0
         provider: nodeshift
       annotations:
         nodeshift/git-branch: master
-        nodeshift/git-commit: 02650b47143908d7f08d339e82678e41fbe8a53b
+        nodeshift/git-commit: 19a044b414e89047ff6404fa3b2eaf1aa7cbe454

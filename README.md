@@ -1,4 +1,4 @@
-# Node.js container native design POC
+sa# Node.js container native design POC
 Proof of concept of Node.js container native design implementing the following tenets:
 
 * DevOps automation
@@ -31,6 +31,7 @@ This project will make use of existing NPM modules where possible e.g. kube-prob
 
 ## Create project
 ```
+oc adm policy add-cluster-role-to-user cluster-admin developer
 oc new-project samplenode
 ```
 
@@ -48,7 +49,9 @@ From OCP portal, create a project "mongodb" and within this project deploy Mongo
 
 From Mongo pod terminal
 ```
-mongo login --username admin --password admin_pass admin
+
+mongo admin --username admin --password admin_pass
+
 
 use test
 db.products.insert({"product_id":2.0,"id":"B000JZ4HQO","title":"Clickart 950 000 - Premier image pack (dvd-rom)","description":"Clickart 950 000 - Premier image pack (dvd-rom)","manufacturer":"Broderbund","price":100.0,"image":"6.jpeg"})
