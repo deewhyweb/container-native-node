@@ -1,6 +1,8 @@
+kind: Deployment
 spec:
   template:
     metadata:
+      name: "${NAME}"
       labels:
         app: gateway
         name: gateway

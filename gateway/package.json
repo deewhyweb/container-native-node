@@ -13,7 +13,7 @@
     "ci": "npm run lint && npm run coveralls",
     "dependencyCheck": "szero . --ci",
     "release": "standard-version -a",
-    "openshift": "nodeshift --strictSSL=false --dockerImage=registry.access.redhat.com/rhoar-nodejs/nodejs-8 --tryServiceAccount=false --configLocation /Users/philiphayes/.kube/config",
+    "openshift": "nodeshift -d NAME=testgw --strictSSL=false --dockerImage=registry.access.redhat.com/rhoar-nodejs/nodejs-8 --tryServiceAccount=false --configLocation /Users/philiphayes/.kube/config",
     "start": "node ."
   },
   "xo": {
@@ -40,7 +40,7 @@
   },
   "devDependencies": {
     "coveralls": "^3.0.1",
-    "nodeshift": "~1.7.0",
+    "nodeshift": "latest",
     "nsp": "~3.2.1",
     "nyc": "~11.7.1",
     "proxyquire": "^2.0.0",

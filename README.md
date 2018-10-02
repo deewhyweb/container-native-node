@@ -33,6 +33,7 @@ This project will make use of existing NPM modules where possible e.g. kube-prob
 ```
 oc login -u system:admin
 oc adm policy add-cluster-role-to-user cluster-admin developer
+oc login -u developer
 oc new-project samplenode
 ```
 

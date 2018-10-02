@@ -16,7 +16,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "1184ef60b458218af02aa2609902dc32b91db29a"
+          "nodeshift/git-commit": "4d5a22c7d250ce3871051c60df8e651f81b1781c"
         }
       },
       "spec": {
@@ -47,6 +47,7 @@
         ],
         "template": {
           "metadata": {
+            "name": "testgw",
             "labels": {
               "project": "gateway",
               "version": "1.0.0",
@@ -57,7 +58,7 @@
             "annotations": {
               "sidecar.istio.io/inject": "true",
               "nodeshift/git-branch": "master",
-              "nodeshift/git-commit": "1184ef60b458218af02aa2609902dc32b91db29a"
+              "nodeshift/git-commit": "4d5a22c7d250ce3871051c60df8e651f81b1781c"
             }
           },
           "spec": {
@@ -184,7 +185,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "master",
-          "nodeshift/git-commit": "1184ef60b458218af02aa2609902dc32b91db29a"
+          "nodeshift/git-commit": "4d5a22c7d250ce3871051c60df8e651f81b1781c"
         }
       }
     }
