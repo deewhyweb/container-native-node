@@ -1,0 +1,43 @@
+spec:
+  template:
+    metadata:
+      labels:
+        app: hufflepuff
+        name: hufflepuff
+      annotations:
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: hufflepuff
+          env:
+          ports:
+          - containerPort: 8080
+            protocol: TCP
+            name: http
+          readinessProbe:
+            httpGet:
+              path: /api/health/readiness
+              port: 3000
+              scheme: HTTP
+            failureThreshold: 3
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            successThreshold: 1
+            timeoutSeconds: 1
+          livenessProbe:
+            httpGet:
+              path: /api/health/liveness
+              port: 3000
+              scheme: HTTP
+            failureThreshold: 2
+            initialDelaySeconds: 60
+            periodSeconds: 3
+            successThreshold: 1
+            timeoutSeconds: 1
+          resources:
+          limits:
+            cpu: 200m
+            memory: 400Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi

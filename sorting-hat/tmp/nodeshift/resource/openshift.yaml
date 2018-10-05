@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: List
+items:
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      name: sorting-hat
+      namespace: demojam
+      labels:
+        project: sorting-hat
+        version: 1.0.0
+        provider: nodeshift
+        app: sorting-hat
+      annotations:
+        nodeshift/git-branch: demojam
+        nodeshift/git-commit: df797099435c086139688785420555b4a576770b
+    spec:
+      replicas: 1
+      revisionHistoryLimit: 2
+      selector:
+        app: sorting-hat
+        project: sorting-hat
+        provider: nodeshift
+      triggers:
+        - type: ConfigChange
+        - type: ImageChange
+          imageChangeParams:
+            automatic: true
+            containerNames:
+              - sorting-hat
+            from:
+              kind: ImageStreamTag
+              name: 'sorting-hat:latest'
+      template:
+        metadata:
+          name: testgw
+          labels:
+            project: sorting-hat
+            version: 1.0.0
+            provider: nodeshift
+            app: sorting-hat
+            name: sorting-hat
+          annotations:
+            sidecar.istio.io/inject: 'true'
+            nodeshift/git-branch: demojam
+            nodeshift/git-commit: df797099435c086139688785420555b4a576770b
+        spec:
+          containers:
+            - readinessProbe:
+                httpGet:
+                  path: /api/health/readiness
+                  scheme: HTTP
+                  port: 3000
+                failureThreshold: 3
+                initialDelaySeconds: 10
+                periodSeconds: 5
+                successThreshold: 1
+                timeoutSeconds: 1
+              livenessProbe:
+                httpGet:
+                  path: /api/health/liveness
+                  scheme: HTTP
+                  port: 3000
+                initialDelaySeconds: 60
+                periodSeconds: 3
+                failureThreshold: 2
+                successThreshold: 1
+                timeoutSeconds: 1
+              image: sorting-hat
+              name: sorting-hat
+              securityContext:
+                privileged: false
+              ports:
+                - containerPort: 8080
+                  name: http
+                  protocol: TCP
+              env: []
+              resources: null
+              limits:
+                cpu: 200m
+                memory: 400Mi
+              requests:
+                cpu: 100m
+                memory: 200Mi
+  - apiVersion: v1
+    kind: Route
+    spec:
+      to:
+        kind: Service
+        name: sorting-hat
+      port:
+        targetPort: 8080
+    metadata:
+      name: sorting-hat
+      namespace: demojam
+      labels:
+        project: sorting-hat
+        version: 1.0.0
+        provider: nodeshift
+  - apiVersion: v1
+    kind: Service
+    spec:
+      selector:
+        project: sorting-hat
+        provider: nodeshift
+      ports:
+        - protocol: TCP
+          port: 8080
+          targetPort: 8080
+          name: http
+      type: ClusterIP
+    metadata:
+      name: sorting-hat
+      namespace: demojam
+      labels:
+        project: sorting-hat
+        version: 1.0.0
+        provider: nodeshift
+      annotations:
+        nodeshift/git-branch: demojam
+        nodeshift/git-commit: df797099435c086139688785420555b4a576770b
