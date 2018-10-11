@@ -7,7 +7,7 @@
       "kind": "DeploymentConfig",
       "metadata": {
         "name": "sorting-hat",
-        "namespace": "demojam",
+        "namespace": "hogwarts",
         "labels": {
           "project": "sorting-hat",
           "version": "1.0.0",
@@ -16,7 +16,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "demojam",
-          "nodeshift/git-commit": "df797099435c086139688785420555b4a576770b"
+          "nodeshift/git-commit": "074a9e9cb590c4c41d74f69313041cb1ee018525"
         }
       },
       "spec": {
@@ -58,7 +58,7 @@
             "annotations": {
               "sidecar.istio.io/inject": "true",
               "nodeshift/git-branch": "demojam",
-              "nodeshift/git-commit": "df797099435c086139688785420555b4a576770b"
+              "nodeshift/git-commit": "074a9e9cb590c4c41d74f69313041cb1ee018525"
             }
           },
           "spec": {
@@ -130,7 +130,7 @@
       },
       "metadata": {
         "name": "sorting-hat",
-        "namespace": "demojam",
+        "namespace": "hogwarts",
         "labels": {
           "project": "sorting-hat",
           "version": "1.0.0",
@@ -158,7 +158,7 @@
       },
       "metadata": {
         "name": "sorting-hat",
-        "namespace": "demojam",
+        "namespace": "hogwarts",
         "labels": {
           "project": "sorting-hat",
           "version": "1.0.0",
@@ -166,7 +166,7 @@
         },
         "annotations": {
           "nodeshift/git-branch": "demojam",
-          "nodeshift/git-commit": "df797099435c086139688785420555b4a576770b"
+          "nodeshift/git-commit": "074a9e9cb590c4c41d74f69313041cb1ee018525"
         }
       }
     }
